@@ -510,6 +510,45 @@
       font-size: 0.8rem;
       color: var(--muted);
     }
+/* ==== FOND ANIMÉ CYAN / NEON ==== */
+.animated-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  z-index: -1;
+  background: radial-gradient(circle at 50% 50%, rgba(56,189,248,0.07), transparent 70%);
+}
+
+/* Petites particules lumineuses */
+.animated-bg span {
+  position: absolute;
+  display: block;
+  width: 6px;
+  height: 6px;
+  background: rgba(56,189,248,0.55);
+  border-radius: 50%;
+  box-shadow: 0 0 8px rgba(56,189,248,0.9);
+  animation: move 12s linear infinite;
+}
+
+/* Animation flottante */
+@keyframes move {
+  0% {
+    transform: translateY(0px) translateX(0px) scale(1);
+    opacity: 0.7;
+  }
+  50% {
+    transform: translateY(-80px) translateX(40px) scale(1.4);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(0px) translateX(0px) scale(1);
+    opacity: 0.7;
+  }
+}
 
     /* Responsive */
 
@@ -533,8 +572,88 @@
         grid-template-columns: minmax(0,1fr);
       }
     }
+    /* ===== FOND ANIMÉ : POINTS CONNECTÉS ===== */
+#bg-particles {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -2;
+  background: var(--bg);
+}
+
+/* Effet underline animé */
+header nav a {
+  position: relative;
+  padding-bottom: 5px;
+  transition: 0.3s;
+}
+
+header nav a::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 0%;
+  height: 2px;
+  background: #38bdf8; /* Cyan */
+  box-shadow: 0 0 8px #38bdf8;
+  transition: width 0.3s ease;
+}
+
+header nav a:hover::after,
+header nav a.active::after {
+  width: 100%;
+}
+
+/* Effet Ripple Neon */
+nav a {
+  position: relative;
+  overflow: hidden;
+}
+
+nav a .ripple {
+  position: absolute;
+  border-radius: 50%;
+  transform: scale(0);
+  background: rgba(56,189,248,0.45);
+  box-shadow: 0 0 12px rgba(56,189,248,0.8);
+  animation: ripple 0.6s ease-out forwards;
+  pointer-events: none;
+}
+
+@keyframes ripple {
+  to {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
+/* HEADER SHRINK ON SCROLL */
+header {
+  transition: padding 0.25s ease, backdrop-filter 0.25s ease, background 0.25s ease;
+}
+
+header.shrink {
+  padding-block: 0.25rem;
+  background: rgba(2,6,23,0.75);
+  backdrop-filter: blur(18px);
+}
+
   </style>
 </head>
+
+<div class="animated-bg">
+  <span style="top: 10%; left: 20%; animation-delay: 0s;"></span>
+  <span style="top: 40%; left: 70%; animation-delay: 2s;"></span>
+  <span style="top: 75%; left: 30%; animation-delay: 4s;"></span>
+  <span style="top: 20%; left: 85%; animation-delay: 6s;"></span>
+  <span style="top: 60%; left: 10%; animation-delay: 8s;"></span>
+  <span style="top: 85%; left: 60%; animation-delay: 10s;"></span>
+</div>
+
+<canvas id="bg-particles"></canvas>
 
 <body data-theme="dark">
   <header>
@@ -550,7 +669,6 @@
         </ul>
       </nav>
       <div class="nav-actions">
-        <span class="pill-indicator">🎯 Bac Pro CIEL – Terminale</span>
         <button id="theme-toggle" class="btn-ghost" type="button">🌙 Mode sombre</button>
         <a href="https://github.com/RayhanProjectsX" class="btn-ghost" target="_blank" rel="noopener">GitHub</a>
         <a href="#contact" class="btn-primary">Me contacter</a>
@@ -573,7 +691,6 @@
 
         <h1 class="hero-title">
           Salut, moi c’est <span>Rayhan</span> 👋<br>
-          futur technicien & développeur.
         </h1>
 
         <p class="hero-subtitle">
@@ -838,43 +955,231 @@
   </footer>
 
   <script>
-    // Année dynamique
-    document.getElementById("year").textContent = new Date().getFullYear();
+/* =========================================
+   ANNÉE DYNAMIQUE
+========================================= */
+document.getElementById("year").textContent = new Date().getFullYear();
 
-    // Thème clair / sombre
-    const body = document.body;
-    const toggleBtn = document.getElementById("theme-toggle");
 
-    function applyTheme(theme) {
-      body.setAttribute("data-theme", theme);
-      toggleBtn.textContent = theme === "dark" ? "🌙 Mode sombre" : "☀️ Mode clair";
+/* =========================================
+   THEME CLAIR / SOMBRE
+========================================= */
+const body = document.body;
+const toggleBtn = document.getElementById("theme-toggle");
+
+function applyTheme(theme) {
+  body.setAttribute("data-theme", theme);
+  toggleBtn.textContent = theme === "dark" ? "🌙 Mode sombre" : "☀️ Mode clair";
+}
+
+const savedTheme = localStorage.getItem("theme") || "dark";
+applyTheme(savedTheme);
+
+toggleBtn.addEventListener("click", () => {
+  const current = body.getAttribute("data-theme");
+  const next = current === "dark" ? "light" : "dark";
+  applyTheme(next);
+  localStorage.setItem("theme", next);
+});
+
+
+/* =========================================
+   ANIMATION AU SCROLL
+========================================= */
+const revealElements = document.querySelectorAll('.reveal');
+
+function handleScroll() {
+  const triggerBottom = window.innerHeight * 0.85;
+  revealElements.forEach(el => {
+    const rect = el.getBoundingClientRect();
+    if (rect.top < triggerBottom) {
+      el.classList.add('visible');
     }
+  });
+}
 
-    const savedTheme = localStorage.getItem("theme") || "dark";
-    applyTheme(savedTheme);
+window.addEventListener('scroll', handleScroll);
+window.addEventListener('load', handleScroll);
 
-    toggleBtn.addEventListener("click", () => {
-      const current = body.getAttribute("data-theme");
-      const next = current === "dark" ? "light" : "dark";
-      applyTheme(next);
-      localStorage.setItem("theme", next);
-    });
 
-    // Animation au scroll
-    const revealElements = document.querySelectorAll('.reveal');
+/* =========================================
+   FOND ANIMÉ – POINTS CONNECTÉS (CANVAS)
+========================================= */
 
-    function handleScroll() {
-      const triggerBottom = window.innerHeight * 0.85;
-      revealElements.forEach(el => {
-        const rect = el.getBoundingClientRect();
-        if (rect.top < triggerBottom) {
-          el.classList.add('visible');
-        }
+// Canvas
+const canvas = document.getElementById("bg-particles");
+const ctx = canvas.getContext("2d");
+
+let particles = [];
+const numParticles = 80;     
+const connectDistance = 150;
+
+// Ajuste la taille aux dimensions de la fenêtre
+function resizeCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+window.addEventListener("resize", resizeCanvas);
+resizeCanvas();
+
+
+// Classe Particule
+class Particle {
+  constructor() {
+    this.x = Math.random() * canvas.width;
+    this.y = Math.random() * canvas.height;
+    this.vx = (Math.random() - 0.5) * 0.7;
+    this.vy = (Math.random() - 0.5) * 0.7;
+    this.radius = 2;
+  }
+
+  move() {
+    this.x += this.vx;
+    this.y += this.vy;
+
+    // Rebonds
+    if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+    if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+  }
+
+  draw() {
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+    ctx.fillStyle = "rgba(56,189,248,0.9)"; // Cyan
+    ctx.shadowBlur = 15;
+    ctx.shadowColor = "rgba(56,189,248,1)";
+    ctx.fill();
+  }
+}
+
+
+// Initialisation
+function initParticles() {
+  particles = [];
+  for (let i = 0; i < numParticles; i++) {
+    particles.push(new Particle());
+  }
+}
+initParticles();
+
+
+// Animation principale
+function animate() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // Lignes entre particules proches
+  for (let i = 0; i < particles.length; i++) {
+    for (let j = i + 1; j < particles.length; j++) {
+      const dx = particles[i].x - particles[j].x;
+      const dy = particles[i].y - particles[j].y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+
+      if (dist < connectDistance) {
+        ctx.beginPath();
+        ctx.strokeStyle = `rgba(56,189,248, ${1 - dist / connectDistance})`;
+        ctx.lineWidth = 1;
+        ctx.moveTo(particles[i].x, particles[i].y);
+        ctx.lineTo(particles[j].x, particles[j].y);
+        ctx.stroke();
+      }
+    }
+  }
+
+  // Mouvements + dessin
+  particles.forEach(p => {
+    p.move();
+    p.draw();
+  });
+
+  requestAnimationFrame(animate);
+}
+
+document.querySelectorAll('header nav a').forEach(link => {
+  link.addEventListener('click', (e) => {
+    e.preventDefault();
+
+    const target = document.querySelector(link.getAttribute('href'));
+    if (target) {
+      target.scrollIntoView({
+        behavior: "smooth",
+        block: "start"
       });
     }
+  });
+});
 
-    window.addEventListener('scroll', handleScroll);
-    window.addEventListener('load', handleScroll);
+const sections = document.querySelectorAll("section[id]");
+const navLinks = document.querySelectorAll("header nav a");
+
+function updateActiveLink() {
+  let current = "";
+
+  sections.forEach(section => {
+    const top = section.offsetTop - 150;
+    const height = section.offsetHeight;
+
+    if (scrollY >= top && scrollY < top + height) {
+      current = section.getAttribute("id");
+    }
+  });
+
+  navLinks.forEach(link => {
+    link.classList.remove("active");
+    if (link.getAttribute("href") === "#" + current) {
+      link.classList.add("active");
+    }
+  });
+}
+
+/* =========================================
+   EFFET VISUEL AU CLICK – RIPPLE NEON
+========================================= */
+
+document.querySelectorAll('header nav a').forEach(link => {
+  link.addEventListener('click', function(e) {
+
+    // Supprime les anciens ripples
+    const oldRipple = this.querySelector('.ripple');
+    if (oldRipple) oldRipple.remove();
+
+    // Coordonnées du clic
+    const rect = this.getBoundingClientRect();
+    const size = Math.max(rect.width, rect.height);
+    const x = e.clientX - rect.left - size / 2;
+    const y = e.clientY - rect.top - size / 2;
+
+    // Crée un nouveau ripple
+    const ripple = document.createElement('span');
+    ripple.classList.add('ripple');
+    ripple.style.width = ripple.style.height = `${size}px`;
+    ripple.style.left = `${x}px`;
+    ripple.style.top = `${y}px`;
+
+    // Ajoute le ripple dans le lien
+    this.appendChild(ripple);
+
+  });
+});
+
+/* =========================================
+   HEADER – SHRINK ON SCROLL
+========================================= */
+
+const header = document.querySelector("header");
+
+function handleHeaderShrink() {
+  if (window.scrollY > 60) {
+    header.classList.add("shrink");
+  } else {
+    header.classList.remove("shrink");
+  }
+}
+
+window.addEventListener("scroll", handleHeaderShrink);
+window.addEventListener("load", handleHeaderShrink);
+
+animate();
+
   </script>
 </body>
 </html>

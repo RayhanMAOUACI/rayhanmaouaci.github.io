@@ -24,23 +24,24 @@
   <span style="top: 85%; left: 60%; animation-delay: 10s;"></span>
 </div>
 
-<div id="ai-bubble">
-  <img src="rayhai.jpg" alt="RayhAI small">
-  <div class="bubble-label">RayhAI</div>
+<!-- Bulle flottante RayhAI -->
+<div class="rayhai-bubble" id="rayhaiBubble">
+    <span class="rayhai-dot"></span>
 </div>
 
-<div id="ai-panel">
-  <div id="ai-panel-header">
-    <div id="ai-header-avatar"><img src="rayhai.jpg" alt=""></div>
-    <div id="ai-header-text"><div class="name"></div><div class="role"></div></div>
-  </div>
+<!-- Fenêtre IA cachée à l’ouverture -->
+<div class="rayhai-popup" id="rayhaiPopup">
+    <div class="rayhai-popup-header">
+        <h3>RayhAI</h3>
+        <button id="closeRayhai" class="rayhai-close">×</button>
+    </div>
 
-  <div id="ai-messages"></div>
+    <div class="rayhai-chatbox"></div>
 
-  <div id="ai-input-area">
-    <input id="ai-input" placeholder="Pose une question...">
-    <button id="ai-send">Envoyer</button>
-  </div>
+    <div class="rayhai-input-zone">
+        <input type="text" class="rayhai-input" placeholder="Votre message…">
+        <button class="rayhai-send">Envoyer</button>
+    </div>
 </div>
 
 

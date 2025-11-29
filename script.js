@@ -1,106 +1,126 @@
-/* ============================================================
+
+/* =========================================
    ANNÉE DYNAMIQUE
-============================================================ */
+========================================= */
 document.getElementById("year").textContent = new Date().getFullYear();
 
 
-/* ============================================================
+/* =========================================
    THEME CLAIR / SOMBRE
-============================================================ */
+========================================= */
 const body = document.body;
 const toggleBtn = document.getElementById("theme-toggle");
 
 function applyTheme(theme) {
-  body.dataset.theme = theme;
+  body.setAttribute("data-theme", theme);
   toggleBtn.textContent = theme === "dark" ? "🌙 Mode sombre" : "☀️ Mode clair";
 }
 
-applyTheme(localStorage.getItem("theme") || "dark");
+const savedTheme = localStorage.getItem("theme") || "dark";
+applyTheme(savedTheme);
 
 toggleBtn.addEventListener("click", () => {
-  const next = body.dataset.theme === "dark" ? "light" : "dark";
+  const current = body.getAttribute("data-theme");
+  const next = current === "dark" ? "light" : "dark";
   applyTheme(next);
   localStorage.setItem("theme", next);
 });
 
 
-/* ============================================================
-   ANIMATION SCROLL (REVEAL)
-============================================================ */
+/* =========================================
+   ANIMATION AU SCROLL
+========================================= */
 const revealElements = document.querySelectorAll('.reveal');
 
-function handleScrollReveal() {
-  const trigger = window.innerHeight * 0.85;
+function handleScroll() {
+  const triggerBottom = window.innerHeight * 0.85;
   revealElements.forEach(el => {
-    if (el.getBoundingClientRect().top < trigger) {
+    const rect = el.getBoundingClientRect();
+    if (rect.top < triggerBottom) {
       el.classList.add('visible');
     }
   });
 }
 
-window.addEventListener('scroll', handleScrollReveal);
-window.addEventListener('load', handleScrollReveal);
+window.addEventListener('scroll', handleScroll);
+window.addEventListener('load', handleScroll);
 
 
-/* ============================================================
-   CANVAS BACKGROUND – PARTICLES CONNECTÉS
-============================================================ */
+/* =========================================
+   FOND ANIMÉ – POINTS CONNECTÉS (CANVAS)
+========================================= */
+
+// Canvas
 const canvas = document.getElementById("bg-particles");
 const ctx = canvas.getContext("2d");
-let particles = [];
-const PARTICLE_COUNT = 80;
-const LINK_DISTANCE = 150;
 
+let particles = [];
+const numParticles = 80;     
+const connectDistance = 150;
+
+// Ajuste la taille aux dimensions de la fenêtre
 function resizeCanvas() {
-  canvas.width = innerWidth;
-  canvas.height = innerHeight;
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
 }
-addEventListener("resize", resizeCanvas);
+window.addEventListener("resize", resizeCanvas);
 resizeCanvas();
 
+
+// Classe Particule
 class Particle {
   constructor() {
-    this.reset();
-  }
-  reset() {
     this.x = Math.random() * canvas.width;
     this.y = Math.random() * canvas.height;
     this.vx = (Math.random() - 0.5) * 0.7;
     this.vy = (Math.random() - 0.5) * 0.7;
     this.radius = 2;
   }
+
   move() {
     this.x += this.vx;
     this.y += this.vy;
+
+    // Rebonds
     if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
     if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
   }
+
   draw() {
     ctx.beginPath();
     ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-    ctx.fillStyle = "rgba(56,189,248,0.9)";
+    ctx.fillStyle = "rgba(56,189,248,0.9)"; // Cyan
     ctx.shadowBlur = 15;
     ctx.shadowColor = "rgba(56,189,248,1)";
     ctx.fill();
   }
 }
 
+
+// Initialisation
 function initParticles() {
-  particles = Array.from({ length: PARTICLE_COUNT }, () => new Particle());
+  particles = [];
+  for (let i = 0; i < numParticles; i++) {
+    particles.push(new Particle());
+  }
 }
 initParticles();
 
+
+// Animation principale
 function animate() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+  // Lignes entre particules proches
   for (let i = 0; i < particles.length; i++) {
     for (let j = i + 1; j < particles.length; j++) {
       const dx = particles[i].x - particles[j].x;
       const dy = particles[i].y - particles[j].y;
       const dist = Math.sqrt(dx * dx + dy * dy);
-      if (dist < LINK_DISTANCE) {
+
+      if (dist < connectDistance) {
         ctx.beginPath();
-        ctx.strokeStyle = `rgba(56,189,248, ${1 - dist / LINK_DISTANCE})`;
+        ctx.strokeStyle = `rgba(56,189,248, ${1 - dist / connectDistance})`;
         ctx.lineWidth = 1;
         ctx.moveTo(particles[i].x, particles[i].y);
         ctx.lineTo(particles[j].x, particles[j].y);
@@ -109,6 +129,7 @@ function animate() {
     }
   }
 
+  // Mouvements + dessin
   particles.forEach(p => {
     p.move();
     p.draw();
@@ -116,82 +137,98 @@ function animate() {
 
   requestAnimationFrame(animate);
 }
-animate();
 
-
-/* ============================================================
-   NAVIGATION – SCROLL FLUIDE
-============================================================ */
-document.querySelectorAll("header nav a").forEach(link => {
-  link.addEventListener("click", e => {
+document.querySelectorAll('header nav a').forEach(link => {
+  link.addEventListener('click', (e) => {
     e.preventDefault();
-    const target = document.querySelector(link.getAttribute("href"));
+
+    const target = document.querySelector(link.getAttribute('href'));
     if (target) {
-      target.scrollIntoView({ behavior: "smooth", block: "start" });
+      target.scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+      });
     }
   });
 });
 
-
-/* ============================================================
-   NAVIGATION – ACTIVE LINK
-============================================================ */
 const sections = document.querySelectorAll("section[id]");
 const navLinks = document.querySelectorAll("header nav a");
 
 function updateActiveLink() {
   let current = "";
+
   sections.forEach(section => {
     const top = section.offsetTop - 150;
     const height = section.offsetHeight;
+
     if (scrollY >= top && scrollY < top + height) {
-      current = section.id;
+      current = section.getAttribute("id");
     }
   });
 
   navLinks.forEach(link => {
-    link.classList.toggle("active", link.getAttribute("href") === "#" + current);
+    link.classList.remove("active");
+    if (link.getAttribute("href") === "#" + current) {
+      link.classList.add("active");
+    }
   });
 }
 
-addEventListener("scroll", updateActiveLink);
-addEventListener("load", updateActiveLink);
 
 
-/* ============================================================
-   RIPPLE EFFECT – ULTRA CLEAN
-============================================================ */
+/* ============================================
+   EFFET RIPPLE NEON — VERSION ULTRA FIABLE
+   ============================================ */
+
 document.addEventListener("DOMContentLoaded", () => {
-  document.querySelectorAll(".category-btn").forEach(btn => {
-    btn.addEventListener("click", e => {
+    const buttons = document.querySelectorAll(".category-btn");
 
-      const prev = btn.querySelector(".ripple");
-      if (prev) prev.remove();
+    buttons.forEach(btn => {
+        btn.addEventListener("click", function (e) {
 
-      const rect = btn.getBoundingClientRect();
-      const size = Math.max(rect.width, rect.height);
-      const ripple = document.createElement("span");
+            // Supprimer les anciens ripple
+            const oldRipple = this.querySelector(".ripple");
+            if (oldRipple) oldRipple.remove();
 
-      ripple.className = "ripple";
-      ripple.style.width = ripple.style.height = `${size}px`;
-      ripple.style.left = `${e.clientX - rect.left - size / 2}px`;
-      ripple.style.top = `${e.clientY - rect.top - size / 2}px`;
+            const rect = this.getBoundingClientRect();
+            const size = Math.max(rect.width, rect.height);
+            const x = e.clientX - rect.left - size / 2;
+            const y = e.clientY - rect.top - size / 2;
 
-      btn.appendChild(ripple);
-      ripple.addEventListener("animationend", () => ripple.remove());
+            const ripple = document.createElement("span");
+            ripple.classList.add("ripple");
+            ripple.style.width = `${size}px`;
+            ripple.style.height = `${size}px`;
+            ripple.style.left = `${x}px`;
+            ripple.style.top = `${y}px`;
+
+            this.appendChild(ripple);
+
+            // Animation auto-clean
+            ripple.addEventListener("animationend", () => {
+                ripple.remove();
+            });
+        });
     });
-  });
 });
 
 
-/* ============================================================
-   HEADER – SHRINK EFFECT
-============================================================ */
+/* =========================================
+   HEADER – SHRINK ON SCROLL
+========================================= */
+
 const header = document.querySelector("header");
 
 function handleHeaderShrink() {
-  header.classList.toggle("shrink", scrollY > 60);
+  if (window.scrollY > 60) {
+    header.classList.add("shrink");
+  } else {
+    header.classList.remove("shrink");
+  }
 }
 
-addEventListener("scroll", handleHeaderShrink);
-addEventListener("load", handleHeaderShrink);
+window.addEventListener("scroll", handleHeaderShrink);
+window.addEventListener("load", handleHeaderShrink);
+
+animate();

@@ -1,11 +1,11 @@
 /* ============================================================
    rayhai.js — RayhAI (production-ready)
-   - Mode A — Interaction modérée par défaut
-   - Features: UI injection, bubble (drag/snap), panel, messaging,
-               page analysis & suggestions, selection popup,
-               section observer (scroll), idle watcher, local fallback engine.
+   - UI injection, bubble (drag/snap), panel, messaging
+   - page analysis & suggestions, selection popup,
+   - section observer, idle watcher
+   - Integrates RayhAI Engine v4 (window.RayhaiEngine)
    - Exposes: window.RayhaiPanel, window.RayhaiBubble, window.RayhaiSuggest, window.RayhaiPro
-   Replace your existing rayhai.js with this file.
+   NOTE: ne touche pas aux scripts extérieurs ; this file assumes engine + persona live under /ai
 ============================================================ */
 
 (function () {
@@ -13,70 +13,63 @@
 
   /* ========================
      Utilities
-     ======================== */
+  ======================== */
   const $ = (sel, ctx = document) => ctx.querySelector(sel);
   const $$ = (sel, ctx = document) => Array.from(ctx.querySelectorAll(sel));
   const clamp = (v, a, b) => Math.max(a, Math.min(v, b));
   const nowTime = () => {
-  const d = new Date();
-  const h = String(d.getHours()).padStart(2, "0");
-  const m = String(d.getMinutes()).padStart(2, "0");
-  return `${h}:${m}`;
-};
+    const d = new Date();
+    const h = String(d.getHours()).padStart(2, "0");
+    const m = String(d.getMinutes()).padStart(2, "0");
+    return `${h}:${m}`;
+  };
 
+  /* ============================
+     Disable RayhAI persistence (safe patch)
+     - Remove known keys and block future writes to those keys
+  =========================== */
+  (function disableRayhaiPersistence() {
+    try {
+      const keysToRemove = [
+        "RAYHAI_HISTORY_V1",
+        "RAYHAI_BUBBLE_POS_V1",
+        "rayhai_chat",
+        "RAYHAI_WELCOMED",
+        "RAYHAI_BUBBLE_POS",
+        "RAYHAI_HISTORY"
+      ];
+      keysToRemove.forEach(k => {
+        try { localStorage.removeItem(k); } catch (e) {}
+        try { sessionStorage.removeItem(k); } catch (e) {}
+      });
 
-/* ============================
-   RayhAI — Clear cache & disable persistence (safe patch)
-   - Supprime les clés RayhAI existantes
-   - Empêche les futurs setItem pour les clés RayhAI
-   - Ne touche pas aux autres données localStorage
-============================ */
-(function disableRayhaiPersistence() {
-  try {
-    // clés connues utilisées par RayhAI
-    const keysToRemove = [
-      'RAYHAI_HISTORY_V1',
-      'RAYHAI_BUBBLE_POS_V1',
-      'rayhai_chat',
-      'RAYHAI_WELCOMED',
-      'RAYHAI_BUBBLE_POS',
-      'RAYHAI_HISTORY'
-    ];
-    keysToRemove.forEach(k => {
-      try { localStorage.removeItem(k); } catch (e) {}
-      try { sessionStorage.removeItem(k); } catch (e) {}
-    });
-
-    // empêchons les futurs enregistrements pour les clés RayhAI
-    const origSet = localStorage.setItem.bind(localStorage);
-    localStorage.setItem = function(key, value) {
-      try {
-        if (typeof key === 'string' && /rayhai|RAYHAI|rayhai_chat|RAYHAI_/i.test(key)) {
-          // noop pour toutes les clés RayhAI
-          return;
-        }
-      } catch (e) {}
-      return origSet(key, value);
-    };
-
-    // idem pour sessionStorage (si utilisé)
-    const origSessionSet = sessionStorage.setItem ? sessionStorage.setItem.bind(sessionStorage) : null;
-    if (origSessionSet) {
-      sessionStorage.setItem = function(key, value) {
+      const origLocalSet = localStorage.setItem.bind(localStorage);
+      localStorage.setItem = function (key, value) {
         try {
-          if (typeof key === 'string' && /rayhai|RAYHAI|rayhai_chat|RAYHAI_/i.test(key)) return;
+          if (typeof key === "string" && /rayhai|RAYHAI|rayhai_chat|RAYHAI_/i.test(key)) {
+            return;
+          }
         } catch (e) {}
-        return origSessionSet(key, value);
+        return origLocalSet(key, value);
       };
+
+      const origSessionSet = sessionStorage.setItem ? sessionStorage.setItem.bind(sessionStorage) : null;
+      if (origSessionSet) {
+        sessionStorage.setItem = function (key, value) {
+          try {
+            if (typeof key === "string" && /rayhai|RAYHAI|rayhai_chat|RAYHAI_/i.test(key)) return;
+          } catch (e) {}
+          return origSessionSet(key, value);
+        };
+      }
+    } catch (e) {
+      // silent
     }
-  } catch (e) {
-    // silent
-  }
-})();
+  })();
 
   /* ========================
      Configuration
-     ======================== */
+  ======================== */
   const CONFIG = {
     bubbleSize: 58,
     bubbleMargin: 12,
@@ -94,8 +87,8 @@
   };
 
   /* ========================
-     Global message helpers (accessible everywhere)
-     ======================== */
+     Global message helpers
+  ======================== */
   function appendAssistantMessage(text) {
     const body = document.querySelector(".rayhai-body");
     if (!body) return;
@@ -132,12 +125,11 @@
 
   /* ========================
      Ensure UI (inject root if missing)
-     ======================== */
+  ======================== */
   function ensureUI() {
     let root = document.getElementById("rayhai-root");
     if (root) return root;
 
-    // Create structure (keeps markup predictable)
     root = document.createElement("div");
     root.id = "rayhai-root";
     root.innerHTML = `
@@ -169,13 +161,12 @@
       </div>
     `;
     document.body.appendChild(root);
-
     return root;
   }
 
   /* ========================
      Panel initialization
-     ======================== */
+  ======================== */
   function initPanel(root) {
     const bubble = $(".rayhai-bubble", root);
     const panel = $(".rayhai-panel", root);
@@ -185,12 +176,9 @@
     const closeBtn = $(".rayhai-close", root);
     const suggestionsBar = $(".rayhai-suggestions", root);
 
-    // minimal guard
-    if (!panel || !body) {
-      return { panel: null };
-    }
+    if (!panel || !body) return { panel: null };
 
-    // History load/save
+    // History load/save (non-persistent due to earlier override, but keep API)
     const HISTORY_KEY = CONFIG.localStorageKeys.history;
     function loadHistory() {
       try {
@@ -224,7 +212,6 @@
       body.scrollTop = body.scrollHeight;
     }
 
-    // expose API
     window.RayhaiPanel = {
       open: () => {
         panel.classList.add("open");
@@ -245,7 +232,6 @@
       appendAssistantMessage: (t) => { history.push({ role: "assistant", text: t, ts: Date.now() }); saveHistory(history); appendAssistantMessage(t); }
     };
 
-    // close behavior
     if (closeBtn) closeBtn.addEventListener("click", () => window.RayhaiPanel.close());
     document.addEventListener("click", (e) => {
       if (!root.contains(e.target) && panel.classList.contains("open")) {
@@ -254,13 +240,14 @@
     });
     document.addEventListener("keydown", (e) => { if (e.key === "Escape") window.RayhaiPanel.close(); });
 
-    // initial greeting (only once per session)
-    if (!sessionStorage.getItem("RAYHAI_WELCOMED")) {
-      appendAssistantMessage("Salut — je suis RayhAI. Besoin d'un coup de main ?");
-      sessionStorage.setItem("RAYHAI_WELCOMED", "1");
-    }
+    // initial greeting (session)
+    try {
+      if (!sessionStorage.getItem("RAYHAI_WELCOMED")) {
+        appendAssistantMessage("Salut — je suis RayhAI. Besoin d'un coup de main ?");
+        sessionStorage.setItem("RAYHAI_WELCOMED", "1");
+      }
+    } catch (e) {}
 
-    // render saved conversation
     renderHistory();
 
     return { panel, body, textarea, sendBtn, suggestionsBar };
@@ -268,7 +255,7 @@
 
   /* ========================
      Bubble (drag, snap, avoid conflicts)
-     ======================== */
+  ======================== */
   function initBubble(root) {
     const bubble = $(".rayhai-bubble", root);
     if (!bubble) return null;
@@ -420,6 +407,7 @@
       checkConflicts: checkConflictsAndResolve
     };
     window.RayhaiBubble = API;
+
     // toggle panel from bubble
     bubble.addEventListener("click", (e) => {
       const panel = $("#rayhai-panel");
@@ -440,16 +428,41 @@
 
   /* ========================
      Messaging (input + send)
-     ======================== */
+  ======================== */
   function initMessaging(panel) {
     if (!panel) return;
     const input = document.getElementById("rayhai-input");
     const sendBtn = document.getElementById("rayhai-send");
     const body = panel.querySelector(".rayhai-body");
 
-    if (!input || !sendBtn || !body) {
-      // no noisy logs in production
-      return;
+    if (!input || !sendBtn || !body) return;
+
+    // central askEngine wrapper calling the engine v4 (with safe fallbacks)
+    async function askEngine(prompt) {
+      // prefer window.RayhaiEngine.ask
+      try {
+        if (window.RayhaiEngine && typeof window.RayhaiEngine.ask === "function") {
+          const res = await window.RayhaiEngine.ask(prompt);
+          if (res) return res;
+        } else if (window.RayhaiEngine && window.RayhaiEngine._internal && typeof window.RayhaiEngine._internal.localResponder === "function") {
+          // fallback to internal localResponder if engine present with internals
+          const local = window.RayhaiEngine._internal.localResponder(prompt);
+          if (local) return local;
+        }
+      } catch (e) {
+        // ignore and fallback
+        console.warn("askEngine: engine error", e);
+      }
+
+      // final fallback simple
+      try {
+        // if an earlier local fallback exists in global scope (legacy), use it
+        if (typeof window._RAYHAI_LEGACY_LOCAL === "function") {
+          return window._RAYHAI_LEGACY_LOCAL(prompt);
+        }
+      } catch (e) {}
+      // minimal offline reply
+      return "Mode local : je n’ai pas la réponse complète mais je peux t'aider à clarifier ta demande.";
     }
 
     async function sendMessage() {
@@ -461,13 +474,7 @@
       appendAssistantMessage("…");
       let reply = "";
       try {
-        if (window.RayhaiEngine && typeof window.RayhaiEngine.ask === "function") {
-          reply = await window.RayhaiEngine.ask(text);
-        } else {
-          // local fallback simple
-          await new Promise(r => setTimeout(r, 300));
-          reply = "Mode local : " + text;
-        }
+        reply = await askEngine(text);
       } catch (err) {
         reply = "Erreur lors de la requête.";
       }
@@ -495,11 +502,9 @@
 
   /* ========================
      Suggest module (page analysis, selection popup, proactive, idle)
-     ======================== */
+  ======================== */
   function initSuggestModule(root, refs = {}) {
-    // protective guard
     if (!refs || !refs.panel) {
-      // return safe API
       window.RayhaiSuggest = {
         scanNow: () => {},
         enable: () => {},
@@ -520,11 +525,7 @@
       return s;
     })();
 
-    const state = {
-      proactiveTimer: null,
-      sectionObserver: null,
-      selPopup: null
-    };
+    const state = { proactiveTimer: null, sectionObserver: null, selPopup: null };
 
     const cfg = {
       enabled: true,
@@ -535,213 +536,20 @@
       proactiveIntervalMs: CONFIG.proactiveIntervalMs
     };
 
-async function askEngine(prompt) {
-function localResponder(q) {
-  if (!q) return null;
-  q = q.toLowerCase().trim();
-
-  const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
-  const user = PERSONA?.identity?.user_profile || {};
-
-  /* =============================
-     1. EMOTIONS / SENTIMENTS
-     ============================= */
-  const tone = {
-    happy: /(super|génial|trop bien|content|heureux|parfait|cool|nice|parfait)/.test(q),
-    sad: /(triste|mal|déprimé|fatigué|déçu|pas bien|down|chagrin)/.test(q),
-    angry: /(énervé|agacé|furieux|rage|colère|jpp|cassé|chiant)/.test(q),
-    confused: /(comprends pas|bloqué|j'arrive pas|c compliqué|perdu|je galère)/.test(q),
-    stressed: /(stress|angoisse|peur|inquiet|pression|overthink)/.test(q),
-    lonely: /(seul|personne|j’ai personne|besoin de parler|solitude)/.test(q)
-  };
-
-  if (tone.happy)
-    return pick([
-      "J’aime cette énergie ! On continue ensemble ?",
-      "Tu as une super vibe. Tu veux avancer sur un truc en particulier ?",
-      "Ça fait plaisir à voir. Besoin d’aide ou juste discuter ?"
-    ]);
-
-  if (tone.sad)
-    return pick([
-      "Je suis là. Tu veux m’expliquer ce qui te pèse ?",
-      "Je comprends… Parle-moi si tu veux, je t’écoute.",
-      "On avance doucement, à ton rythme. Qu’est-ce qui va pas ?"
-    ]);
-
-  if (tone.angry)
-    return pick([
-      "Ok, je sens de la frustration. On respire. Qu’est-ce qui t’a énervé ?",
-      "Je comprends. Dis-moi ce qui a déclenché ça.",
-      "On va décomposer le problème, tu n’es pas seul."
-    ]);
-
-  if (tone.confused)
-    return "Pas de panique, on va simplifier ça ensemble. Qu’est-ce qui bloque exactement ?";
-
-  if (tone.stressed)
-    return "Je comprends. On va découper tout ça en petites étapes. Qu’est-ce qui te met la pression ?";
-
-  if (tone.lonely)
-    return "Je suis là. Parle-moi si tu veux. Tu n’es pas seul, ok ?";
-
-
-  /* =============================
-     2. SALUTATIONS
-     ============================= */
-  if (/^(salut|bonjour|bonsoir|hey|yo|hello)/.test(q)) {
-    return `Salut ! Je suis RayhAI. Tu veux une explication, une suggestion, ou juste discuter ?`;
-  }
-
-
-  /* =============================
-     3. ÇA VA ?
-     ============================= */
-  if (/ça va|ca va|comment tu vas|tu vas bien/.test(q)) {
-    return pick([
-      "Je vais très bien, merci. Et toi ?",
-      "Toujours prête. Comment tu te sens de ton côté ?",
-      "Nickel. Tu veux avancer sur ton site ou juste discuter ?"
-    ]);
-  }
-
-
-  /* =============================
-     4. QUI ES-TU ?
-     ============================= */
-  if (/t'es qui|tu es qui|qui es tu|qui es-tu|présente toi/.test(q)) {
-    return `Je suis RayhAI, l’assistante personnelle intégrée au site de ${user.prenom}. Je t’aide, j’explique, j’oriente et j’accompagne chaque interaction.`;
-  }
-
-
-  /* =============================
-     5. SUR RAYHAN (basé persona.json)
-     ============================= */
-  if (/rayhan/.test(q) && /qui|c'est|parle|présente/.test(q)) {
-    return `${user.prenom} a ${user.age} ans et étudie en Terminale CIEL. Passionné par l’informatique, la musculation, la technologie, l’IA et le web.`;
-  }
-
-  if (/âge|age|ans/.test(q)) {
-    return `${user.prenom} a ${user.age} ans.`;
-  }
-
-  if (/études|ecole|parcours|ciel/.test(q)) {
-    return `${user.prenom} est en Terminale CIEL, un parcours orienté informatique, cybersécurité, systèmes et réseaux.`;
-  }
-
-
-  /* =============================
-     6. PASSIONS / PERSONA
-     ============================= */
-  if (/passion|aime|hobby/.test(q)) {
-    return `${user.prenom} aime : ${PERSONA.passions.join(", ")}.`;
-  }
-
-
-  /* =============================
-     7. OBJECTIFS / AVENIR
-     ============================= */
-  if (/objectif|avenir|bts|objectif pro/.test(q)) {
-    return `${user.prenom} vise : ${PERSONA.objectives.pro}.`;
-  }
-
-
-  /* =============================
-     8. COMPÉTENCES
-     ============================= */
-  if (/compétence|skills|niveau/.test(q)) {
-    const web = PERSONA.skills.web.join(", ");
-    const tech = PERSONA.skills.tech.join(", ");
-    return `Compétences de ${user.prenom} : Web — ${web}. Technologie — ${tech}.`;
-  }
-
-
-  /* =============================
-     9. PROJETS
-     ============================= */
-  if (/projet|portfolio|travaux/.test(q)) {
-    return `Projets de ${user.prenom} : ${PERSONA.projects.join(" • ")}. Tu veux un détail ?`;
-  }
-
-
-  /* =============================
-     10. LANGUES
-     ============================= */
-  if (/langue|parle/.test(q)) {
-    return `${user.prenom} parle : ${PERSONA.languages.join(", ")}.`;
-  }
-
-
-  /* =============================
-     11. PETITES DISCUSSIONS
-     ============================= */
-  if (/météo|temps/.test(q))
-    return "Je n’ai pas la météo, mais ici tout est toujours clair et fluide.";
-
-  if (/blague|rigole|mdr|ptdr/.test(q))
-    return pick([
-      "Pourquoi les développeurs n’aiment pas la nature ? Trop de bugs.",
-      "Le HTML demande : « pourquoi je suis triste ? » — Parce qu’il a trop de balises fermées.",
-      "Console.log : le seul ami fidèle du développeur."
-    ]);
-
-  if (/motivation|motivé|déprime/.test(q))
-    return "Tu es plus capable que tu ne le penses. Une petite action aujourd’hui vaut dix intentions demain.";
-
-  if (/conseil|aide moi|aide-moi/.test(q))
-    return "Explique-moi ta situation, je te donne un plan simple et efficace.";
-
-
-  /* =============================
-     12. TECH / DEV / IA
-     ============================= */
-  if (/html|css|js|javascript|web|dev|code|bug/.test(q))
-    return "Envoie ton code ou explique ton problème. Je te fais une version propre et optimisée.";
-
-  if (/ia|intelligence artificielle|chatgpt|neural|machine/.test(q))
-    return "Je peux t’expliquer un concept IA, un modèle ou une architecture si tu veux.";
-
-
-  /* =============================
-     13. RELATIONS / VIE
-     ============================= */
-  if (/amour|couple|relation|cœur|coeur/.test(q))
-    return "Les relations demandent communication, confiance et patience. Tu veux un avis sur une situation ?";
-
-  if (/travail|job|boulot|cv/.test(q))
-    return "Je peux structurer ton CV, ton pitch ou t’aider à préparer un entretien.";
-
-
-  /* =============================
-     14. FALLBACK INTELLIGENT
-     ============================= */
-  if (q.length <= 3)
-    return "Je t’écoute. Tu veux préciser un peu ?";
-
-  return "Je vois. Ajoute un peu de détails et je te réponds précisément.";
-}
-
-
-  /* ==================================================
-     ENGINE ROUTING (offline-only by default)
-     ================================================== */
-  if (cfg.offline || !window.RayhaiEngine || typeof window.RayhaiEngine.ask !== "function") {
-    const res = localResponder(prompt);
-    return res || "Mode local : aucune réponse externe disponible.";  
-  }
-
-  /* ==================================================
-     ONLINE ENGINE (if connected)
-     ================================================== */
-  try {
-    const res = await window.RayhaiEngine.ask(prompt);
-    if (!res) return null;
-    return typeof res === "string" ? res : (res.text || res.result || JSON.stringify(res));
-  } catch (_) {
-    return localResponder(prompt) || null;
-  }
-}
-
+    async function askEngine(prompt) {
+      // same wrapper as messaging
+      try {
+        if (window.RayhaiEngine && typeof window.RayhaiEngine.ask === "function") {
+          const r = await window.RayhaiEngine.ask(prompt);
+          if (r) return r;
+        } else if (window.RayhaiEngine && window.RayhaiEngine._internal && typeof window.RayhaiEngine._internal.miniLLM === "function") {
+          return window.RayhaiEngine._internal.miniLLM(prompt);
+        }
+      } catch (e) {
+        console.warn("askEngine(suggest): engine error", e);
+      }
+      return "Désolé, je n'ai pas de suggestion complète en local.";
+    }
 
     function extractContext() {
       const title = document.title || "";
@@ -774,7 +582,6 @@ function localResponder(q) {
           appendUserMessage(t);
           appendAssistantMessage("…");
           askEngine(t).then(res => {
-            // remove placeholder
             const last = document.querySelector(".rayhai-body").lastElementChild;
             if (last && last.querySelector && last.querySelector(".msg-bubble").textContent === "…") last.remove();
             appendAssistantMessage(res || "Aucune réponse.");
@@ -791,7 +598,7 @@ function localResponder(q) {
       if (!cfg.enabled) return;
       const ctx = extractContext();
       if (!ctx.text && !ctx.h1 && !ctx.title) return;
-      const prompt = `Tu es RayhAI. À partir de ce contexte de page, propose 6 actions utiles, courtes (une par ligne):\n\nTitle: ${ctx.title}\nH1: ${ctx.h1}\nMeta: ${ctx.meta}\nContent start: ${ctx.text.slice(0,400)}`;
+      const prompt = `Tu es RayhAI. À partir de ce contexte de page, propose ${CONFIG.suggestionLimit} actions utiles, courtes (une par ligne):\n\nTitle: ${ctx.title}\nH1: ${ctx.h1}\nMeta: ${ctx.meta}\nContent start: ${ctx.text.slice(0,400)}`;
       const reply = await askEngine(prompt);
       if (!reply) return;
       const lines = reply.split(/\n+/).map(s => s.trim()).filter(Boolean);
@@ -801,9 +608,7 @@ function localResponder(q) {
     function startProactive() {
       if (state.proactiveTimer) clearInterval(state.proactiveTimer);
       scanAndSuggest();
-      state.proactiveTimer = setInterval(() => {
-        scanAndSuggest();
-      }, cfg.proactiveIntervalMs);
+      state.proactiveTimer = setInterval(scanAndSuggest, cfg.proactiveIntervalMs);
     }
     function stopProactive() {
       if (state.proactiveTimer) { clearInterval(state.proactiveTimer); state.proactiveTimer = null; }
@@ -885,7 +690,7 @@ function localResponder(q) {
       } catch (e) { hideSelPopup(); }
     }
 
-    // Section observer (Interaction A) — expects panel & suggestionsBar params when invoked
+    // Section observer
     function startSectionObserver(panelArg, suggestionsBarArg) {
       const sections = Array.from(document.querySelectorAll("section, article, main > div, [data-section]"));
       if (!sections.length) return;
@@ -893,13 +698,11 @@ function localResponder(q) {
         entries.forEach(entry => {
           if (!entry.isIntersecting || entry.intersectionRatio < 0.45) return;
           const sectionName = entry.target.id || entry.target.dataset.section || (entry.target.querySelector("h2")?.textContent || "section");
-          // debounce small
           clearTimeout(window.__rayhaiScrollDebounce);
           window.__rayhaiScrollDebounce = setTimeout(() => {
             const panelClosed = !(panelArg && panelArg.classList.contains("open"));
             const emptySuggestions = !(suggestionsBarArg && suggestionsBarArg.childElementCount > 0);
             if (!panelClosed || !emptySuggestions) return;
-            // ask engine for single-line suggestion
             askEngine(`Propose une action utile en une seule phrase pour la section "${sectionName}".`).then(reply => {
               if (!reply) return;
               const line = reply.split("\n")[0].trim();
@@ -917,9 +720,7 @@ function localResponder(q) {
                   const last = document.querySelector(".rayhai-body").lastElementChild;
                   if (last && last.querySelector && last.querySelector(".msg-bubble").textContent === "…") last.remove();
                   appendAssistantMessage(res || "Aucune réponse.");
-                }).catch(()=>{
-                  appendAssistantMessage("Erreur.");
-                });
+                }).catch(()=>{ appendAssistantMessage("Erreur."); });
               });
               suggestionsBarArg.appendChild(btn);
               suggestionsBarArg.style.display = "flex";
@@ -961,10 +762,7 @@ function localResponder(q) {
     function enable() {
       cfg.enabled = true;
       document.addEventListener("selectionchange", handleSelectionChange);
-      // start section observer using provided refs
-      try {
-        startSectionObserver(panel, suggestionsBar);
-      } catch (_) {}
+      try { startSectionObserver(panel, suggestionsBar); } catch (_) {}
       startProactive();
       startIdleWatcher();
     }
@@ -977,10 +775,8 @@ function localResponder(q) {
       hideSelPopup();
     }
 
-    // init
     if (cfg.enabled) enable();
 
-    // expose API
     window.RayhaiSuggest = {
       scanNow: scanAndSuggest,
       enable: enable,
@@ -989,18 +785,14 @@ function localResponder(q) {
       status: () => ({ cfg })
     };
 
-    // initial scan
     setTimeout(() => { if (cfg.enabled) scanAndSuggest(); }, 900);
 
-    return {
-      renderChips,
-      startSectionObserver
-    };
+    return { renderChips, startSectionObserver };
   }
 
   /* ========================
      RayhaiPro API (control)
-     ======================== */
+  ======================== */
   window.RayhaiPro = {
     enableAll: () => { if (window.RayhaiSuggest) window.RayhaiSuggest.enable(); },
     disableAll: () => { if (window.RayhaiSuggest) window.RayhaiSuggest.disable(); },
@@ -1009,29 +801,8 @@ function localResponder(q) {
   };
 
   /* ========================
-     Local test engine (fallback)
-     ======================== */
-  if (!window.RayhaiEngine) {
-    window.RayhaiEngine = {
-      ask: async function (prompt) {
-        // small simulated latency
-        await new Promise(r => setTimeout(r, 300));
-        // simple heuristics
-        const q = (prompt || "").toLowerCase();
-        if (q.includes("résume") || q.includes("résumer") || q.includes("résumé")) {
-          return "Résumé (local) : garde l'idée principale, liste 3 points, ajoute un CTA.";
-        }
-        if (q.includes("propose") || q.includes("action") || q.includes("suggest")) {
-          return "Ajouter un court résumé en début de section.\nRendre les CTA plus visibles.\nAjouter preuve par projet.";
-        }
-        return "IA TEST : " + (prompt || "");
-      }
-    };
-  }
-
-  /* ========================
      Boot (Production — Silent)
-     ======================== */
+  ======================== */
   function bootRayhAI() {
     try {
       const root = ensureUI();
@@ -1051,13 +822,10 @@ function localResponder(q) {
           body: refs.body,
           suggestionsBar: refs.suggestionsBar
         });
-      } catch (e) {
-        // silent
-      }
+      } catch (e) {}
 
       document.dispatchEvent(new Event("RayhAI_READY_FINAL"));
     } catch (e) {
-      // silent catch in production
       console.error && console.error("[RayhAI Boot Error]", e);
     }
   }
@@ -1070,5 +838,5 @@ function localResponder(q) {
 
   /* ========================
      End of file
-     ======================== */
+  ======================== */
 })();

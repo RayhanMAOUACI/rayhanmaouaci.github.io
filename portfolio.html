@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Portfolio de Rayhan MAOUACI - Étudiant en Terminale Bac Pro CIEL, passionné par la cybersécurité, les réseaux et le développement.">
+  <meta name="theme-color" content="#000000">
+  <title>Rayhan MAOUACI | Portfolio 2025</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>💼</text></svg>">
+  
+  <!-- Web App -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  
+  <!-- CSS -->
+  <link rel="stylesheet" href="assets/css/main.css">
+  <link rel="stylesheet" href="ai/rayhai.css">
+</head>
+
+<body data-theme="dark">
+
+  <!-- INTERACTIVE ELEMENTS -->
+  <div class="custom-cursor"></div>
+  <div class="cursor-dot"></div>
+  <div class="scroll-progress"></div>
+  <div class="tooltip"></div>
+
+  <!-- DYNAMIC BACKGROUND - VAGUES DYNAMIQUES -->
+  <div class="dynamic-bg">
+    <div class="mesh-gradient"></div>
+    <canvas id="particle-canvas"></canvas>
+  </div>
+
+  <!-- HEADER -->
+  <header class="header" id="header">
+    <div class="header-content">
+      <a href="#profil" class="logo">
+        <span class="logo-text">R</span>
+      </a>
+
+      <nav class="nav">
+        <a href="#profil" class="nav-link active">Profil</a>
+        <a href="#competences" class="nav-link">Compétences</a>
+        <a href="#projets" class="nav-link">Projets</a>
+        <a href="#mindset" class="nav-link">Mindset</a>
+        <a href="#contact" class="nav-link">Contact</a>
+      </nav>
+
+      <div class="header-actions">
+        <button class="icon-btn" id="theme-toggle" aria-label="Changer de thème">
+          <span class="theme-icon"></span>
+        </button>
+        <button class="burger" id="burger" aria-label="Menu">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MOBILE MENU -->
+  <div class="mobile-menu" id="mobile-menu">
+    <div class="mobile-menu-content">
+      <nav class="mobile-nav">
+        <a href="#profil" class="mobile-link">Profil</a>
+        <a href="#competences" class="mobile-link">Compétences</a>
+        <a href="#projets" class="mobile-link">Projets</a>
+        <a href="#mindset" class="mobile-link">Mindset</a>
+        <a href="#contact" class="mobile-link">Contact</a>
+      </nav>
+      <div class="mobile-footer">
+        <a href="https://github.com/RayhanMAOUACI" target="_blank" class="mobile-social">GitHub</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <main>
+
+    <!-- HERO -->
+    <section class="hero" id="profil">
+      <div class="container">
+        <div class="hero-content">
+          <div class="hero-badge">
+            <span class="pulse-dot"></span>
+            Recherche une alternance pour septembre 2025
+          </div>
+
+          <h1 class="hero-title">
+            Enchanté, je suis <span class="gradient-text">Rayhan</span>
+          </h1>
+
+          <p class="hero-subtitle">
+            Étudiant en <strong>Terminale Bac Pro CIEL</strong> (Cybersécurité, Informatique & Réseaux, Électronique) 
+            au lycée Georges Cisson à Toulon. Passionné par la tech, je construis mon avenir entre sécurité, 
+            développement et projets concrets. Je recherche une alternance pour intégrer le <strong>BTS SIO SLAM à Ynov Aix-en-Provence</strong> dès septembre 2025.
+          </p>
+
+          <div class="hero-stats">
+            <div class="stat-item">
+              <div class="stat-icon">🎓</div>
+              <div class="stat-content">
+                <strong>18 ans</strong>
+                <span>Terminale CIEL</span>
+              </div>
+            </div>
+
+            <div class="stat-item">
+              <div class="stat-icon">💼</div>
+              <div class="stat-content">
+                <strong>3 Stages</strong>
+                <span>Expériences 2023 – 2025</span>
+              </div>
+            </div>
+            
+            <div class="stat-item">
+              <div class="stat-icon">🎨</div>
+              <div class="stat-content">
+                <strong>2 Projets</strong>
+                <span>Projets Personnels – 2025</span>
+              </div>
+            </div>
+
+            <div class="stat-item">
+              <div class="stat-icon">🎯</div>
+              <div class="stat-content">
+                <strong>BTS SIO SLAM</strong>
+                <span>Alternance 2025 • Ynov Aix</span>
+              </div>
+            </div>
+
+            <div class="stat-item">
+              <div class="stat-icon">🚗</div>
+              <div class="stat-content">
+                <strong>Mobilité</strong>
+                <span>Permis AM (BSR)</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="hero-actions">
+            <a href="#contact" class="btn btn-primary">
+              Me contacter
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M5 12h14M12 5l7 7-7 7"/>
+              </svg>
+            </a>
+            <a href="#projets" class="btn btn-secondary">Voir mes projets</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- COMPÉTENCES -->
+    <section class="section" id="competences">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-label">Skills</span>
+          <h2 class="section-title">Mes compétences</h2>
+          <p class="section-subtitle">Ce que j'ai appris et ce que je maîtrise</p>
+        </div>
+
+        <div class="grid grid-2">
+          <div class="card">
+            <div class="card-icon">💻</div>
+            <h3>Compétences techniques</h3>
+            <p class="card-desc">Informatique, cybersécurité, réseaux & électronique</p>
+            
+            <ul class="feature-list">
+              <li>Notions de cybersécurité</li>
+              <li>Adressage IP, réseaux locaux</li>
+              <li>Montage / démontage de PC</li>
+              <li>Découverte de l'électronique</li>
+              <li>Bases HTML / CSS et programmation</li>
+            </ul>
+
+            <div class="skill-bars">
+              <div class="skill-bar-item">
+                <div class="skill-bar-header">
+                  <span>Cybersécurité</span>
+                  <span class="skill-percent">75%</span>
+                </div>
+                <div class="skill-bar">
+                  <div class="skill-bar-fill" data-width="75"></div>
+                </div>
+              </div>
+
+              <div class="skill-bar-item">
+                <div class="skill-bar-header">
+                  <span>Réseaux</span>
+                  <span class="skill-percent">80%</span>
+                </div>
+                <div class="skill-bar">
+                  <div class="skill-bar-fill" data-width="80"></div>
+                </div>
+              </div>
+
+              <div class="skill-bar-item">
+                <div class="skill-bar-header">
+                  <span>Développement Web</span>
+                  <span class="skill-percent">70%</span>
+                </div>
+                <div class="skill-bar">
+                  <div class="skill-bar-fill" data-width="70"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="tags">
+              <span class="tag">Cybersécurité</span>
+              <span class="tag">Réseaux</span>
+              <span class="tag">Matériel</span>
+              <span class="tag">Web</span>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-icon">🎯</div>
+            <h3>Savoir-être & mindset</h3>
+            <p class="card-desc">Ce que j'apporte dans une équipe</p>
+            
+            <ul class="feature-list">
+              <li>Sérieux et respect des consignes</li>
+              <li>Envie de progresser</li>
+              <li>À l'aise avec les gens</li>
+              <li>Capacité à apprendre vite</li>
+            </ul>
+
+            <div class="tags">
+              <span class="tag">Motivé</span>
+              <span class="tag">Curieux</span>
+              <span class="tag">Esprit d'équipe</span>
+              <span class="tag">Autonome</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PROJETS -->
+    <section class="section" id="projets">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-label">Portfolio</span>
+          <h2 class="section-title">Projets & expériences</h2>
+          <p class="section-subtitle">Mon parcours à travers différents stages et projets</p>
+        </div>
+
+        <div class="grid grid-2">
+          <div class="card project-card featured">
+            <div class="project-header">
+              <span class="project-label">2025 • Projet Perso</span>
+              <span class="card-icon">🌐</span>
+            </div>
+            <h3>Portfolio & identité numérique</h3>
+            <p>Conception et développement de mon portfolio professionnel pour présenter mon parcours, mes compétences et mes projets techniques. Ce site sert de vitrine moderne et évolutive.</p>
+            <div class="tags">
+              <span class="tag">HTML</span>
+              <span class="tag">CSS</span>
+              <span class="tag">JavaScript</span>
+              <span class="tag">IA</span>
+            </div>
+          </div>
+
+          <div class="card project-card">
+            <div class="project-header">
+              <span class="project-label">2025 • Projet IA</span>
+              <span class="card-icon">🤖</span>
+            </div>
+            <h3>RayhAI — Assistant IA Personnel</h3>
+            <p>Conception complète d'un assistant IA avancé intégré directement au portfolio. Développement d'une interface moderne incluant une bulle intelligente, un panel dynamique.</p>
+            <div class="tags">
+              <span class="tag">JavaScript</span>
+              <span class="tag">API Claude</span>
+              <span class="tag">UI/UX</span>
+            </div>
+          </div>
+
+          <div class="card project-card">
+            <div class="project-header">
+              <span class="project-label">2024 • Stage</span>
+              <span class="card-icon">🔧</span>
+            </div>
+            <h3>Assistant Technicien — CTV Électronique</h3>
+            <p>Stage réalisé à Toulon au sein d'un atelier spécialisé. Diagnostic et maintenance d'équipements électroniques, installation de caméras de surveillance, tests qualité.</p>
+            <div class="tags">
+              <span class="tag">Électronique</span>
+              <span class="tag">Réseaux</span>
+              <span class="tag">Diagnostic</span>
+            </div>
+          </div>
+
+          <div class="card project-card">
+            <div class="project-header">
+              <span class="project-label">2025 • Stage</span>
+              <span class="card-icon">📡</span>
+            </div>
+            <h3>Technicien Fibre — MT Fiber</h3>
+            <p>Stage d'un mois centré sur le tirage, le raccordement et les tests de fibre optique. Installation et mise en service de box internet.</p>
+            <div class="tags">
+              <span class="tag">Fibre optique</span>
+              <span class="tag">Installation</span>
+              <span class="tag">Dépannage</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TIMELINE -->
+    <section class="section">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-label">Parcours</span>
+          <h2 class="section-title">Mon évolution</h2>
+        </div>
+
+        <div class="timeline">
+          <div class="timeline-item">
+            <div class="timeline-marker"></div>
+            <div class="timeline-content">
+              <span class="timeline-date">2023 - 2025</span>
+              <h3>Stages techniques variés</h3>
+              <p>Développement web, réparation téléphones, fibre optique, électricité, support informatique</p>
+            </div>
+          </div>
+
+          <div class="timeline-item">
+            <div class="timeline-marker"></div>
+            <div class="timeline-content">
+              <span class="timeline-date">2024 - 2025</span>
+              <h3>Terminale Bac Pro CIEL</h3>
+              <p>Lycée Georges Cisson à Toulon • Spécialité Cybersécurité, Informatique, Réseaux & Électronique</p>
+            </div>
+          </div>
+
+          <div class="timeline-item">
+            <div class="timeline-marker"></div>
+            <div class="timeline-content">
+              <span class="timeline-date">2025</span>
+              <h3>Objectif : BTS SIO SLAM en alternance</h3>
+              <p>Ynov Aix-en-Provence • Rythme : 2 jours cours / 3 jours entreprise</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- MINDSET -->
+    <section class="section" id="mindset">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-label">Philosophy</span>
+          <h2 class="section-title">Mindset & citations</h2>
+          <p class="section-subtitle">Ce qui me guide et me motive au quotidien</p>
+        </div>
+
+        <div class="grid grid-3">
+          <div class="card quote-card">
+            <div class="quote-mark">"</div>
+            <p class="quote-text">La perfection n'est pas atteignable, mais si nous visons la perfection, nous pouvons atteindre l'excellence.</p>
+            <p class="quote-author">— Vince Lombardi</p>
+          </div>
+
+          <div class="card quote-card">
+            <div class="quote-mark">"</div>
+            <p class="quote-text">La motivation te fait démarrer, mais c'est l'habitude qui te fait continuer.</p>
+            <p class="quote-author">— Jim Ryun</p>
+          </div>
+
+          <div class="card quote-card">
+            <div class="quote-mark">"</div>
+            <p class="quote-text">Nous devenons ce que nous faisons de manière répétée. L'excellence n'est donc pas un acte, mais une habitude.</p>
+            <p class="quote-author">— Aristote</p>
+          </div>
+        </div>
+
+        <div class="card vlog-card">
+          <h3>📍 Mon projet professionnel</h3>
+          <p>Actuellement en Terminale Bac Pro CIEL au lycée Georges Cisson à Toulon, je me spécialise dans la cybersécurité, les réseaux, l'informatique et l'électronique. À travers mes stages et projets personnels, j'ai pu développer des compétences techniques solides et une capacité d'adaptation dans différents environnements professionnels.</p>
+          <p>Dès septembre 2025, je souhaite poursuivre en <strong>BTS SIO option SLAM à Ynov Aix-en-Provence</strong> en alternance (rythme : 2 jours de cours / 3 jours en entreprise). Mon objectif est d'approfondir mes connaissances en développement, administration systèmes et réseaux, tout en maintenant une veille active sur la cybersécurité. Je recherche une entreprise qui me permettra de mettre en pratique mes compétences et de progresser dans un cadre professionnel stimulant.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONTACT -->
+    <section class="section" id="contact">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-label">Get in touch</span>
+          <h2 class="section-title">Contactez-moi</h2>
+          <p class="section-subtitle">Vous recherchez un alternant motivé ? N'hésitez pas à me contacter pour échanger sur un projet d'alternance</p>
+        </div>
+
+        <div class="grid grid-2">
+          <div class="card contact-card">
+            <h3>📧 Email</h3>
+            <a href="mailto:ray.maouaci@gmail.com" class="contact-link">ray.maouaci@gmail.com</a>
+            
+            <h3>📍 Localisation</h3>
+            <a href="https://earth.google.com/web/@43.124228,5.928,0a,1000d,35y,0h,0t,0r" target="_blank" class="contact-location">Toulon, France</a>
+            
+            <div style="margin-top: 32px;">
+              <a href="mailto:ray.maouaci@gmail.com" class="btn btn-primary">Envoyer un email</a>
+            </div>
+          </div>
+
+          <div class="card social-card">
+            <h3>🌐 Réseaux sociaux</h3>
+            <div class="social-links">
+              <a href="https://github.com/RayhanMAOUACI" target="_blank" class="social-link">
+                <span class="social-icon">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.17 6.839 9.49.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.603-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.463-1.11-1.463-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0112 6.836c.85.004 1.705.114 2.504.336 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.167 22 16.418 22 12c0-5.523-4.477-10-10-10z"/>
+                  </svg>
+                </span>
+                <div>
+                  <strong>GitHub</strong>
+                  <p>@RayhanMAOUACI</p>
+                </div>
+              </a>
+
+              <a href="https://www.instagram.com/rkz_qlf/" target="_blank" class="social-link">
+                <span class="social-icon">📸</span>
+                <div>
+                  <strong>Instagram</strong>
+                  <p>@rkz_qlf</p>
+                </div>
+              </a>
+
+              <a href="https://www.snapchat.com/add/rkz_qlf" target="_blank" class="social-link">
+                <span class="social-icon">👻</span>
+                <div>
+                  <strong>Snapchat</strong>
+                  <p>rkz_qlf</p>
+                </div>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container">
+      <p>© <span id="year"></span> Rayhan Maouaci • Portfolio RayhanOS</p>
+    </div>
+  </footer>
+
+  <!-- SCRIPTS -->
+  <script src="assets/js/main.js"></script>
+  <script src="ai/engine.js"></script>
+  <script src="ai/rayhai.js"></script>
+
+</body>
+</html>

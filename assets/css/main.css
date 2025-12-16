@@ -1457,3 +1457,31 @@ main {
     display: none;
   }
 }
+
+.projects-category {
+  margin-bottom: 64px;
+}
+
+.projects-category:last-child {
+  margin-bottom: 0;
+}
+
+.category-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 32px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid var(--border);
+  position: relative;
+}
+
+.category-title::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 80px;
+  height: 2px;
+  background: linear-gradient(90deg, var(--accent), transparent);
+}

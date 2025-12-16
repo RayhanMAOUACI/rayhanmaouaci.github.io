@@ -1,19 +1,13 @@
 /* ============================================================
-   RAYHAI Engine v6 — Premium First Person
-   JE SUIS RAYHAN - Pas un assistant, MOI en version IA
-   
-   - Réponses à la première personne (JE/MON/MES)
-   - Contexte conversationnel intelligent
-   - Mémoire de session avancée
-   - Détection d'intentions multi-niveaux
-   - Streaming et typing effect
-   - Persona authentique
+   RAYHAI Engine v6 – Version Production
+   Logs minimisés, filtres optimisés
    ============================================================ */
 
 (function () {
   "use strict";
 
-  // ========== State ==========
+  const DEBUG = false; // Mettre à true pour activer les logs
+
   let PERSONA = null;
   let READY = false;
   const SESSION = {
@@ -25,7 +19,8 @@
     userName: null
   };
 
-  // ========== Utils ==========
+  const log = (...args) => DEBUG && console.log(...args);
+
   const clean = (s) => String(s || "").toLowerCase().trim();
   const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
   const similarity = (a, b) => {
@@ -35,15 +30,13 @@
     return intersection / Math.max(setA.size, setB.size, 1);
   };
 
-  // ========== Load Persona ==========
   async function loadPersona() {
     try {
       const res = await fetch("./ai/persona.json", { cache: "no-store" });
       if (!res.ok) throw new Error("persona.json non trouvé");
       PERSONA = await res.json();
-      console.info("✅ RayhAI Persona chargée - Mode First Person");
+      log("✅ Persona chargée");
     } catch (e) {
-      console.warn("⚠️ Impossible de charger persona.json", e);
       PERSONA = { 
         identity: { name: "Rayhan Maouaci" },
         about_me: { short: "Étudiant en Terminale CIEL" }
@@ -54,7 +47,6 @@
     return PERSONA;
   }
 
-  // ========== Context Management ==========
   function addToContext(role, text, intent = null) {
     SESSION.context.push({ role, text, intent, timestamp: Date.now() });
     if (SESSION.context.length > 10) SESSION.context.shift();
@@ -97,17 +89,13 @@
     return null;
   }
 
-  // ========== Advanced Intent Detection ==========
   function detectIntent(text) {
     const t = clean(text);
     const triggers = PERSONA?.context_triggers || {};
 
-    // Detect user name first
     detectUserName(text);
 
-    // Multi-level intent system
     const intents = {
-      // Greetings & Social
       greeting: {
         patterns: [/^(salut|bonjour|hello|hey|yo|coucou|bjr)/],
         priority: 1
@@ -120,12 +108,6 @@
         patterns: [/merci|thanks|thx|remercie/],
         priority: 1
       },
-      small_talk: {
-        patterns: [/ça va|comment (tu )?vas|tu vas bien|quoi de neuf|comment ça va/],
-        priority: 1
-      },
-      
-      // Identity & Personal
       who_are_you: {
         patterns: [/qui es[- ]tu|t'?es qui|te présent|comment tu t'appelles|c'est qui rayhan/],
         priority: 1
@@ -150,8 +132,6 @@
         patterns: [/contacter|contact|email|joindre|ton (mail|email|numéro)/],
         priority: 1
       },
-      
-      // Technical Help
       code_help: {
         patterns: [/bug|erreur|marche pas|fonctionne pas|problème de code/],
         keywords: triggers.code_keywords,
@@ -162,12 +142,6 @@
         keywords: triggers.learning_keywords,
         priority: 2
       },
-      code_review: {
-        patterns: [/regarde|vérifie|check|analyse mon code|optimise/],
-        priority: 2
-      },
-      
-      // Project & Career
       project_idea: {
         patterns: [/projet|créer|développer|builder|faire un|idée de/],
         keywords: triggers.project_keywords,
@@ -178,8 +152,6 @@
         keywords: triggers.career_keywords,
         priority: 2
       },
-      
-      // Motivation & Support
       need_motivation: {
         patterns: [/motivé|courage|envie|objectif|avancer|progresser/],
         keywords: triggers.motivation_keywords,
@@ -196,7 +168,6 @@
       }
     };
 
-    // Check patterns with priority
     let matches = [];
     for (const [name, config] of Object.entries(intents)) {
       if (config.patterns && config.patterns.some(p => p.test(t))) {
@@ -207,7 +178,6 @@
       }
     }
 
-    // Return highest priority match
     if (matches.length > 0) {
       matches.sort((a, b) => a.priority - b.priority);
       const intent = matches[0].name;
@@ -215,7 +185,6 @@
       return intent;
     }
 
-    // Context-based fallback
     if (SESSION.lastIntent && SESSION.conversationDepth > 0) {
       const recent = getRecentContext(1);
       if (recent.length > 0) {
@@ -229,28 +198,23 @@
     return "general";
   }
 
-  // ========== Topic Extraction ==========
   function extractTopic(text) {
     const t = clean(text);
     const triggers = PERSONA?.context_triggers || {};
     
-    // Personal topics
     if (triggers.personal_keywords && triggers.personal_keywords.some(k => t.includes(k))) {
       return "PARCOURS PERSONNEL";
     }
     
-    // Technical topics
     if (triggers.code_keywords && triggers.code_keywords.some(k => t.includes(k))) {
       const match = triggers.code_keywords.find(k => t.includes(k));
       return match ? match.toUpperCase() : "CODE";
     }
     
-    // Career topics
     if (triggers.career_keywords && triggers.career_keywords.some(k => t.includes(k))) {
       return "CARRIÈRE";
     }
     
-    // Project topics
     if (triggers.project_keywords && triggers.project_keywords.some(k => t.includes(k))) {
       return "PROJET";
     }
@@ -258,12 +222,10 @@
     return SESSION.lastTopic || "GÉNÉRAL";
   }
 
-  // ========== Response Generator (First Person) ==========
   function generateResponse(intent, text, topic) {
     const style = PERSONA?.conversation_style || {};
     const userName = SESSION.userName ? ` ${SESSION.userName}` : "";
 
-    // Time-based greetings
     const hour = new Date().getHours();
     const timeOfDay = hour < 12 ? "morning" : hour < 18 ? "afternoon" : "evening";
 
@@ -281,13 +243,6 @@
 
       case "thanks":
         return pick(style.thanks_received || ["De rien ! 😊", "Avec plaisir 👍", "Pas de souci !"]);
-
-      case "small_talk":
-        return pick([
-          `Tout roule${userName} ! Et toi, ça avance ? 😊`,
-          "Ça va bien ! Tu bosses sur quoi en ce moment ?",
-          "Nickel ! Besoin d'aide sur un truc ?"
-        ]);
 
       case "who_are_you": {
         const identity = PERSONA?.identity || {};
@@ -356,7 +311,7 @@
         const goals = PERSONA?.goals || {};
         return `Mes objectifs 🎯 :\n\n` +
                `📚 **Court terme** : ${goals.immediate || "Obtenir mon Bac Pro CIEL"}\n` +
-               `🎓 **2025** : ${goals.short_term || "Intégrer un BTS SIO SLAM"}\n` +
+               `🎓 **2026** : ${goals.short_term || "Intégrer un BTS SIO SLAM"}\n` +
                `💼 **Moyen terme** : ${goals.mid_term || "Devenir expert en dev et cybersécurité"}\n` +
                `🚀 **Long terme** : ${goals.long_term || "Créer mes propres projets tech"}\n\n` +
                `Et toi, t'es dans quelle démarche ?`;
@@ -459,40 +414,31 @@
     }
   }
 
-  // ========== Main Ask Function ==========
   async function ask(text) {
     if (!READY) await loadPersona();
     if (!text || !text.trim()) return "Écris quelque chose ! 😊";
 
-    // Clean and prepare
     const cleanText = text.trim();
 
-    // Add to context
     addToContext("user", cleanText);
-
-    // Detect mood and intent
     detectMoodShift(cleanText);
     const intent = detectIntent(cleanText);
     const topic = extractTopic(cleanText);
 
     SESSION.lastTopic = topic;
 
-    // Generate response
     let response;
     try {
       response = generateResponse(intent, cleanText, topic);
     } catch (e) {
-      console.error("RayhAI Engine error:", e);
       response = "Oups, j'ai eu un bug. Réessaye ? 😅";
     }
 
-    // Add response to context
     addToContext("assistant", response, intent);
 
     return response;
   }
 
-  // ========== Session Management ==========
   function resetSession() {
     SESSION.context = [];
     SESSION.lastIntent = null;
@@ -513,20 +459,13 @@
     };
   }
 
-  // ========== Export ==========
   window.RayhaiEngine = {
     ask,
     loadPersona,
     resetSession,
-    getSessionInfo,
-    _internal: {
-      detectIntent,
-      extractTopic,
-      generateResponse
-    }
+    getSessionInfo
   };
 
-  // ========== Public Persona API ==========
   window.RayhaiPersona = {
     get: async () => {
       if (!PERSONA) await loadPersona();
@@ -534,11 +473,8 @@
     }
   };
 
-  // ========== Init ==========
   loadPersona().then(() => {
     READY = true;
-    console.info("🚀 RayhAI Engine v6 Ready");
-    console.info("💬 Je suis Rayhan, prêt à discuter !");
   });
 
 })();

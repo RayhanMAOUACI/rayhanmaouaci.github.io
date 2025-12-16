@@ -526,8 +526,7 @@ function improveAccessibility() {
 // ============================================
 
 function init() {
-  console.log('🎨 Portfolio RayhanOS - Version Professionnelle');
-  console.log('🌊 Fond : Vagues Dynamiques');
+  console.log('🎨 Portfolio RayhanOS 2');
   
   // Core
   new ThemeManager();

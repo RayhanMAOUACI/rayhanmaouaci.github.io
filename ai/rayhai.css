@@ -1,239 +1,383 @@
 /* ============================================
-   RAYHAI - STYLE iOS 26
-   Assistant IA Premium Apple Design
+   RAYHAI - STYLE iOS 26 PREMIUM
+   Design System ultra-moderne
 ============================================ */
 
+/* VARIABLES iOS 26 */
 :root {
-  --rayhai-bg: rgba(28, 28, 30, 0.85);
-  --rayhai-surface: rgba(44, 44, 46, 0.9);
+  /* Colors - iOS 26 Dark Mode */
+  --rayhai-primary: #0a84ff;
+  --rayhai-secondary: #5e5ce6;
+  --rayhai-accent: #bf5af2;
+  --rayhai-success: #32d74b;
+  --rayhai-warning: #ff9f0a;
+  --rayhai-error: #ff453a;
+  
+  /* Surfaces iOS 26 */
+  --rayhai-bg: rgba(0, 0, 0, 0.88);
+  --rayhai-surface: rgba(28, 28, 30, 0.85);
+  --rayhai-elevated: rgba(44, 44, 46, 0.92);
+  --rayhai-overlay: rgba(0, 0, 0, 0.75);
+  
+  /* Text */
   --rayhai-text: #f5f5f7;
-  --rayhai-text-secondary: #86868b;
-  --rayhai-accent: #0a84ff;
-  --rayhai-border: rgba(255, 255, 255, 0.1);
-  --rayhai-glow: rgba(10, 132, 255, 0.4);
-  --rayhai-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-  --rayhai-shadow-lg: 0 16px 64px rgba(0, 0, 0, 0.6);
-  --rayhai-ease: cubic-bezier(0.28, 0.11, 0.32, 1);
-  --rayhai-radius: 20px;
+  --rayhai-text-secondary: #98989d;
+  --rayhai-text-tertiary: #636366;
+  
+  /* Borders & Dividers */
+  --rayhai-border: rgba(255, 255, 255, 0.08);
+  --rayhai-border-elevated: rgba(255, 255, 255, 0.12);
+  --rayhai-divider: rgba(255, 255, 255, 0.04);
+  
+  /* Shadows iOS 26 */
+  --rayhai-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.12);
+  --rayhai-shadow-md: 0 8px 32px rgba(0, 0, 0, 0.24);
+  --rayhai-shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.40);
+  --rayhai-shadow-xl: 0 32px 80px rgba(0, 0, 0, 0.56);
+  
+  /* Blur */
+  --rayhai-blur: blur(80px);
+  --rayhai-blur-strong: blur(120px);
+  
+  /* Radius iOS 26 */
+  --rayhai-radius-sm: 10px;
+  --rayhai-radius-md: 16px;
+  --rayhai-radius-lg: 22px;
+  --rayhai-radius-xl: 28px;
+  --rayhai-radius-2xl: 36px;
   --rayhai-radius-full: 9999px;
+  
+  /* Timing */
+  --rayhai-timing-fast: 0.2s;
+  --rayhai-timing-base: 0.35s;
+  --rayhai-timing-slow: 0.5s;
+  --rayhai-ease: cubic-bezier(0.28, 0.11, 0.32, 1);
+  --rayhai-ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
+  
+  /* Spacing */
+  --rayhai-space-xs: 4px;
+  --rayhai-space-sm: 8px;
+  --rayhai-space-md: 12px;
+  --rayhai-space-lg: 16px;
+  --rayhai-space-xl: 24px;
+  --rayhai-space-2xl: 32px;
 }
 
+/* Light Mode */
 [data-theme="light"] {
-  --rayhai-bg: rgba(255, 255, 255, 0.85);
-  --rayhai-surface: rgba(242, 242, 247, 0.9);
+  --rayhai-primary: #007aff;
+  --rayhai-secondary: #5856d6;
+  --rayhai-bg: rgba(255, 255, 255, 0.92);
+  --rayhai-surface: rgba(245, 245, 247, 0.88);
+  --rayhai-elevated: rgba(255, 255, 255, 0.95);
+  --rayhai-overlay: rgba(0, 0, 0, 0.25);
   --rayhai-text: #1d1d1f;
   --rayhai-text-secondary: #6e6e73;
-  --rayhai-border: rgba(0, 0, 0, 0.1);
-  --rayhai-glow: rgba(0, 122, 255, 0.3);
-  --rayhai-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-  --rayhai-shadow-lg: 0 12px 48px rgba(0, 0, 0, 0.15);
+  --rayhai-text-tertiary: #8e8e93;
+  --rayhai-border: rgba(0, 0, 0, 0.08);
+  --rayhai-border-elevated: rgba(0, 0, 0, 0.12);
+  --rayhai-divider: rgba(0, 0, 0, 0.04);
+  --rayhai-shadow-sm: 0 1px 4px rgba(0, 0, 0, 0.06);
+  --rayhai-shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
+  --rayhai-shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.12);
+  --rayhai-shadow-xl: 0 20px 60px rgba(0, 0, 0, 0.16);
 }
 
-/* ROOT */
-#rayhai-root {
-  position: fixed;
-  bottom: 24px;
-  right: 24px;
-  z-index: 999;
-  pointer-events: none;
-}
+/* ============================================
+   BULLE FLOTTANTE - iOS 26 Style
+============================================ */
 
-#rayhai-root * {
-  box-sizing: border-box;
-}
-
-/* BUBBLE */
 .rayhai-bubble {
-  pointer-events: auto;
-  position: relative;
-  width: 56px;
-  height: 56px;
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  width: 68px;
+  height: 68px;
+  background: linear-gradient(135deg, var(--rayhai-primary) 0%, var(--rayhai-secondary) 100%);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.35s var(--rayhai-ease);
-  background: transparent;
+  box-shadow: 
+    var(--rayhai-shadow-lg),
+    0 0 0 0.5px rgba(255, 255, 255, 0.15) inset,
+    0 1px 1px 0 rgba(255, 255, 255, 0.25) inset;
+  transition: all var(--rayhai-timing-base) var(--rayhai-ease-spring);
+  z-index: 9998;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 
-.bubble-orb {
+/* Glow effect iOS 26 */
+.rayhai-bubble::before {
+  content: '';
   position: absolute;
-  inset: 0;
+  inset: -6px;
+  background: linear-gradient(135deg, var(--rayhai-primary), var(--rayhai-secondary));
   border-radius: 50%;
-  background: linear-gradient(135deg, #0a84ff, #5e5ce6);
-  box-shadow: 0 8px 24px var(--rayhai-glow);
-  animation: orbPulse 3s ease-in-out infinite;
-}
-
-@keyframes orbPulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.05); }
-}
-
-.rayhai-bubble-icon {
-  position: relative;
-  z-index: 2;
-  font-size: 24px;
-  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.3));
-  animation: iconFloat 3s ease-in-out infinite;
-}
-
-@keyframes iconFloat {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-3px); }
+  opacity: 0;
+  filter: blur(24px);
+  transition: opacity var(--rayhai-timing-base) var(--rayhai-ease);
+  z-index: -1;
 }
 
 .rayhai-bubble:hover {
-  transform: scale(1.1) translateY(-2px);
+  transform: translateY(-4px) scale(1.08);
+  box-shadow: 
+    var(--rayhai-shadow-xl),
+    0 0 0 0.5px rgba(255, 255, 255, 0.2) inset,
+    0 1px 2px 0 rgba(255, 255, 255, 0.35) inset;
 }
 
-.rayhai-bubble:hover .bubble-orb {
-  box-shadow: 0 12px 32px var(--rayhai-glow);
+.rayhai-bubble:hover::before {
+  opacity: 0.8;
 }
 
 .rayhai-bubble:active {
-  transform: scale(0.95);
+  transform: translateY(-2px) scale(1.04);
+  transition-duration: 0.1s;
 }
 
-/* PANEL */
+.rayhai-bubble.active {
+  background: var(--rayhai-elevated);
+  border: 2px solid var(--rayhai-primary);
+  box-shadow: 
+    var(--rayhai-shadow-md),
+    0 0 0 4px rgba(10, 132, 255, 0.15);
+}
+
+.rayhai-bubble.active::before {
+  opacity: 0.4;
+}
+
+/* Icon */
+.rayhai-bubble-icon {
+  font-size: 32px;
+  line-height: 1;
+  animation: float 3s ease-in-out infinite;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-6px); }
+}
+
+.rayhai-bubble.active .rayhai-bubble-icon {
+  animation: none;
+}
+
+/* Badge notification */
+.rayhai-badge {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  background: linear-gradient(135deg, #ff3b30, #ff453a);
+  border-radius: var(--rayhai-radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: white;
+  border: 2.5px solid #000;
+  box-shadow: 0 4px 12px rgba(255, 59, 48, 0.5);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+/* ============================================
+   PANEL PRINCIPAL - iOS 26 Design
+============================================ */
+
 .rayhai-panel {
   position: fixed;
-  bottom: 96px;
-  right: 24px;
-  width: 400px;
-  max-width: calc(100vw - 48px);
-  height: 600px;
-  max-height: calc(100vh - 140px);
-  display: flex;
-  flex-direction: column;
+  bottom: 110px;
+  right: 28px;
+  width: 420px;
+  max-width: calc(100vw - 56px);
+  height: 640px;
+  max-height: calc(100vh - 150px);
   background: var(--rayhai-bg);
-  backdrop-filter: saturate(180%) blur(40px);
-  border-radius: var(--rayhai-radius);
-  border: 1px solid var(--rayhai-border);
-  box-shadow: var(--rayhai-shadow-lg);
-  opacity: 0;
-  transform: translateY(20px) scale(0.95);
-  pointer-events: none;
-  transition: all 0.35s var(--rayhai-ease);
+  backdrop-filter: var(--rayhai-blur);
+  -webkit-backdrop-filter: var(--rayhai-blur);
+  border: 0.5px solid var(--rayhai-border-elevated);
+  border-radius: var(--rayhai-radius-2xl);
+  box-shadow: 
+    var(--rayhai-shadow-xl),
+    0 0 0 0.5px rgba(255, 255, 255, 0.08) inset,
+    0 1px 2px 0 rgba(255, 255, 255, 0.12) inset;
+  display: none;
+  flex-direction: column;
   overflow: hidden;
+  z-index: 9999;
+  opacity: 0;
+  transform: translateY(20px) scale(0.96);
+  transition: 
+    opacity var(--rayhai-timing-base) var(--rayhai-ease-spring),
+    transform var(--rayhai-timing-base) var(--rayhai-ease-spring);
 }
 
 .rayhai-panel.open {
   opacity: 1;
   transform: translateY(0) scale(1);
-  pointer-events: auto;
 }
 
-/* HEADER */
+/* Effet glassmorphism iOS 26 */
+.rayhai-panel::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: 
+    linear-gradient(135deg, rgba(10, 132, 255, 0.03) 0%, transparent 50%),
+    linear-gradient(225deg, rgba(94, 92, 230, 0.03) 0%, transparent 50%);
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+/* ============================================
+   HEADER - Style iOS 26
+============================================ */
+
 .rayhai-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 20px 24px;
-  border-bottom: 1px solid var(--rayhai-border);
+  padding: 18px 20px;
   background: var(--rayhai-surface);
+  backdrop-filter: var(--rayhai-blur);
+  -webkit-backdrop-filter: var(--rayhai-blur);
+  border-bottom: 0.5px solid var(--rayhai-divider);
   flex-shrink: 0;
 }
 
-.rayhai-title {
-  font-weight: 700;
-  font-size: 20px;
-  background: linear-gradient(135deg, #0a84ff, #5e5ce6);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+.rayhai-header-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
 }
 
-.rayhai-sub {
-  font-size: 13px;
-  color: var(--rayhai-text-secondary);
-  margin-top: 2px;
-}
-
-.rayhai-close {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  border: none;
-  background: rgba(255, 255, 255, 0.08);
-  color: var(--rayhai-text);
+/* Avatar iOS 26 */
+.rayhai-avatar {
+  width: 44px;
+  height: 44px;
+  background: linear-gradient(135deg, var(--rayhai-primary), var(--rayhai-secondary));
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 16px;
-  cursor: pointer;
-  transition: all 0.2s var(--rayhai-ease);
-}
-
-[data-theme="light"] .rayhai-close {
-  background: rgba(0, 0, 0, 0.06);
-}
-
-.rayhai-close:hover {
-  transform: rotate(90deg) scale(1.1);
-  background: rgba(255, 255, 255, 0.14);
-}
-
-[data-theme="light"] .rayhai-close:hover {
-  background: rgba(0, 0, 0, 0.1);
-}
-
-/* SUGGESTIONS */
-.rayhai-suggestions {
-  display: flex;
-  gap: 8px;
-  padding: 12px 16px;
-  background: rgba(10, 132, 255, 0.04);
-  border-bottom: 1px solid var(--rayhai-border);
-  overflow-x: auto;
-  scrollbar-width: none;
+  font-size: 22px;
+  box-shadow: 
+    0 4px 16px rgba(10, 132, 255, 0.3),
+    0 0 0 0.5px rgba(255, 255, 255, 0.15) inset;
   flex-shrink: 0;
 }
 
-.rayhai-suggestions::-webkit-scrollbar {
-  display: none;
+/* Info */
+.rayhai-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
-.suggestion-chip {
-  padding: 8px 14px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: var(--rayhai-radius-full);
-  font-size: 13px;
+.rayhai-info h3 {
+  font-size: 16px;
+  font-weight: 600;
   color: var(--rayhai-text);
-  white-space: nowrap;
-  cursor: pointer;
-  transition: all 0.2s var(--rayhai-ease);
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}
+
+.rayhai-status {
+  font-size: 13px;
+  color: var(--rayhai-text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 7px;
   font-weight: 500;
 }
 
-[data-theme="light"] .suggestion-chip {
-  background: rgba(0, 0, 0, 0.04);
-  border: 1px solid rgba(0, 0, 0, 0.08);
+.rayhai-status-dot {
+  width: 7px;
+  height: 7px;
+  background: var(--rayhai-success);
+  border-radius: 50%;
+  box-shadow: 0 0 8px rgba(50, 215, 75, 0.6);
+  animation: pulse 2s ease-in-out infinite;
 }
 
-.suggestion-chip:hover {
-  transform: translateY(-2px);
-  background: rgba(10, 132, 255, 0.2);
-  border-color: var(--rayhai-accent);
+@keyframes pulse {
+  0%, 100% { 
+    opacity: 1; 
+    transform: scale(1); 
+  }
+  50% { 
+    opacity: 0.7; 
+    transform: scale(1.15); 
+  }
 }
 
-/* BODY */
+/* Close button iOS 26 */
+.rayhai-close {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  border: 0.5px solid rgba(255, 255, 255, 0.1);
+  color: var(--rayhai-text-secondary);
+  cursor: pointer;
+  transition: all var(--rayhai-timing-fast) var(--rayhai-ease);
+  flex-shrink: 0;
+}
+
+[data-theme="light"] .rayhai-close {
+  background: rgba(0, 0, 0, 0.05);
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+.rayhai-close:hover {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.18);
+  color: var(--rayhai-text);
+  transform: scale(1.08);
+}
+
+[data-theme="light"] .rayhai-close:hover {
+  background: rgba(0, 0, 0, 0.08);
+  border-color: rgba(0, 0, 0, 0.12);
+}
+
+.rayhai-close:active {
+  transform: scale(0.96);
+  transition-duration: 0.1s;
+}
+
+/* ============================================
+   BODY - Messages iOS 26
+============================================ */
+
 .rayhai-body {
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
-  padding: 20px;
+  padding: 24px 20px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+  gap: 18px;
+  scroll-behavior: smooth;
 }
 
+/* Custom scrollbar iOS 26 */
 .rayhai-body::-webkit-scrollbar {
-  width: 6px;
+  width: 5px;
 }
 
 .rayhai-body::-webkit-scrollbar-track {
@@ -241,27 +385,41 @@
 }
 
 .rayhai-body::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.15);
   border-radius: 10px;
+  transition: background var(--rayhai-timing-fast);
 }
 
 [data-theme="light"] .rayhai-body::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.2);
+  background: rgba(0, 0, 0, 0.12);
 }
 
-/* MESSAGE */
-.rayhai-msg {
+.rayhai-body::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+[data-theme="light"] .rayhai-body::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.18);
+}
+
+/* ============================================
+   WELCOME SCREEN - iOS 26
+============================================ */
+
+.rayhai-welcome {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  max-width: 85%;
-  animation: msgSlideIn 0.4s var(--rayhai-ease);
+  align-items: center;
+  text-align: center;
+  padding: 48px 20px;
+  gap: 24px;
+  animation: fadeInUp 0.6s var(--rayhai-ease-spring);
 }
 
-@keyframes msgSlideIn {
+@keyframes fadeInUp {
   from {
     opacity: 0;
-    transform: translateY(12px);
+    transform: translateY(24px);
   }
   to {
     opacity: 1;
@@ -269,208 +427,442 @@
   }
 }
 
-.rayhai-msg.user {
-  align-self: flex-end;
-  align-items: flex-end;
+.rayhai-welcome-icon {
+  font-size: 72px;
+  line-height: 1;
+  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.15));
+  animation: float 3s ease-in-out infinite;
 }
 
-.rayhai-msg.assistant {
-  align-self: flex-start;
-  align-items: flex-start;
+.rayhai-welcome h2 {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--rayhai-text);
+  letter-spacing: -0.02em;
+  margin-bottom: 8px;
 }
 
-.msg-bubble {
-  padding: 12px 16px;
-  border-radius: var(--rayhai-radius);
+.rayhai-welcome p {
+  font-size: 16px;
+  color: var(--rayhai-text-secondary);
+  line-height: 1.5;
+  max-width: 300px;
+  font-weight: 500;
+}
+
+/* Suggestions iOS 26 */
+.rayhai-suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 12px;
+}
+
+.rayhai-suggestion {
+  padding: 12px 20px;
+  background: rgba(10, 132, 255, 0.12);
+  backdrop-filter: blur(20px);
+  border: 0.5px solid rgba(10, 132, 255, 0.25);
+  border-radius: var(--rayhai-radius-full);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--rayhai-primary);
+  cursor: pointer;
+  transition: all var(--rayhai-timing-fast) var(--rayhai-ease);
+  box-shadow: 0 2px 8px rgba(10, 132, 255, 0.15);
+}
+
+.rayhai-suggestion:hover {
+  background: rgba(10, 132, 255, 0.18);
+  border-color: rgba(10, 132, 255, 0.35);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(10, 132, 255, 0.25);
+}
+
+.rayhai-suggestion:active {
+  transform: translateY(0) scale(0.97);
+  transition-duration: 0.1s;
+}
+
+/* ============================================
+   MESSAGES - iOS 26 Style
+============================================ */
+
+.rayhai-message {
+  display: flex;
+  gap: 12px;
+  animation: messageIn 0.4s var(--rayhai-ease-spring);
+}
+
+@keyframes messageIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.rayhai-message.user {
+  flex-direction: row-reverse;
+}
+
+/* Avatar message */
+.rayhai-message-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 18px;
+  margin-top: 2px;
+}
+
+.rayhai-message.assistant .rayhai-message-avatar {
+  background: linear-gradient(135deg, var(--rayhai-primary), var(--rayhai-secondary));
+  box-shadow: 
+    0 2px 8px rgba(10, 132, 255, 0.25),
+    0 0 0 0.5px rgba(255, 255, 255, 0.15) inset;
+}
+
+.rayhai-message.user .rayhai-message-avatar {
+  background: var(--rayhai-elevated);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Content bulle iOS 26 */
+.rayhai-message-content {
+  max-width: 75%;
+  padding: 14px 16px;
+  border-radius: 20px;
   font-size: 15px;
   line-height: 1.5;
   word-wrap: break-word;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-  transition: transform 0.2s var(--rayhai-ease);
-}
-
-.rayhai-msg.user .msg-bubble {
-  background: linear-gradient(135deg, #0a84ff, #5e5ce6);
-  color: #fff;
   font-weight: 500;
-  border-bottom-right-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
-.rayhai-msg.assistant .msg-bubble {
-  background: rgba(255, 255, 255, 0.08);
+.rayhai-message.assistant .rayhai-message-content {
+  background: var(--rayhai-elevated);
   backdrop-filter: blur(20px);
-  color: var(--rayhai-text);
-  border: 1px solid rgba(255, 255, 255, 0.12);
   border-bottom-left-radius: 6px;
+  color: var(--rayhai-text);
+  border: 0.5px solid var(--rayhai-border);
 }
 
-[data-theme="light"] .rayhai-msg.assistant .msg-bubble {
-  background: rgba(0, 0, 0, 0.06);
-  border: 1px solid rgba(0, 0, 0, 0.08);
+.rayhai-message.user .rayhai-message-content {
+  background: linear-gradient(135deg, var(--rayhai-primary), var(--rayhai-secondary));
+  border-bottom-right-radius: 6px;
+  color: white;
+  box-shadow: 
+    0 4px 16px rgba(10, 132, 255, 0.3),
+    0 0 0 0.5px rgba(255, 255, 255, 0.15) inset;
 }
 
-.msg-bubble:hover {
-  transform: translateY(-1px);
+/* Time */
+.rayhai-message-time {
+  font-size: 12px;
+  color: var(--rayhai-text-tertiary);
+  margin-top: 6px;
+  font-weight: 500;
 }
 
-.msg-time {
-  font-size: 11px;
-  color: var(--rayhai-text-secondary);
-  padding: 0 4px;
+/* Strong & Em dans messages */
+.rayhai-message-content strong {
+  font-weight: 700;
+  color: var(--rayhai-primary);
 }
 
-/* TYPING */
+.rayhai-message.user .rayhai-message-content strong {
+  color: white;
+  opacity: 0.95;
+}
+
+.rayhai-message-content em {
+  font-style: italic;
+  opacity: 0.9;
+}
+
+/* ============================================
+   TYPING INDICATOR - iOS 26
+============================================ */
+
 .rayhai-typing {
   display: flex;
-  gap: 6px;
-  padding: 12px 16px;
-  width: fit-content;
-  border-radius: var(--rayhai-radius);
-  background: rgba(255, 255, 255, 0.08);
+  gap: 5px;
+  padding: 14px 18px;
+  background: var(--rayhai-elevated);
   backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 0.5px solid var(--rayhai-border);
+  border-radius: 20px;
+  border-bottom-left-radius: 6px;
+  width: fit-content;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
-[data-theme="light"] .rayhai-typing {
-  background: rgba(0, 0, 0, 0.06);
-  border: 1px solid rgba(0, 0, 0, 0.08);
-}
-
-.rayhai-typing .dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
+.rayhai-typing span {
+  width: 7px;
+  height: 7px;
   background: var(--rayhai-text-secondary);
-  animation: dotPulse 1.4s infinite ease-in-out;
+  border-radius: 50%;
+  animation: typing 1.4s ease-in-out infinite;
 }
 
-.rayhai-typing .dot:nth-child(2) {
+.rayhai-typing span:nth-child(2) {
   animation-delay: 0.2s;
 }
 
-.rayhai-typing .dot:nth-child(3) {
+.rayhai-typing span:nth-child(3) {
   animation-delay: 0.4s;
 }
 
-@keyframes dotPulse {
+@keyframes typing {
   0%, 60%, 100% {
-    transform: scale(0.8);
+    transform: translateY(0);
     opacity: 0.5;
   }
   30% {
-    transform: scale(1.1);
+    transform: translateY(-10px);
     opacity: 1;
   }
 }
 
-/* FOOTER */
+/* ============================================
+   FOOTER - Input iOS 26
+============================================ */
+
 .rayhai-footer {
-  display: flex;
-  gap: 10px;
-  padding: 16px;
-  border-top: 1px solid var(--rayhai-border);
+  padding: 16px 20px 20px;
   background: var(--rayhai-surface);
+  backdrop-filter: var(--rayhai-blur);
+  -webkit-backdrop-filter: var(--rayhai-blur);
+  border-top: 0.5px solid var(--rayhai-divider);
   flex-shrink: 0;
 }
 
+.rayhai-input-wrapper {
+  display: flex;
+  gap: 10px;
+  align-items: flex-end;
+}
+
+/* Input iOS 26 */
 .rayhai-input {
   flex: 1;
-  resize: none;
   min-height: 44px;
-  max-height: 120px;
+  max-height: 140px;
   padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(20px);
+  border: 0.5px solid var(--rayhai-border);
   border-radius: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(255, 255, 255, 0.06);
   color: var(--rayhai-text);
   font-size: 15px;
-  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
-  line-height: 1.5;
-  transition: all 0.2s var(--rayhai-ease);
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
+  font-weight: 500;
+  resize: none;
+  outline: none;
+  transition: all var(--rayhai-timing-fast) var(--rayhai-ease);
+  line-height: 1.4;
 }
 
 [data-theme="light"] .rayhai-input {
   background: rgba(0, 0, 0, 0.04);
-  border: 1px solid rgba(0, 0, 0, 0.12);
-}
-
-.rayhai-input::placeholder {
-  color: var(--rayhai-text-secondary);
 }
 
 .rayhai-input:focus {
-  outline: none;
-  border-color: var(--rayhai-accent);
-  background: rgba(255, 255, 255, 0.08);
-  box-shadow: 0 0 0 4px rgba(10, 132, 255, 0.1);
+  border-color: var(--rayhai-primary);
+  background: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 0 0 3px rgba(10, 132, 255, 0.12);
 }
 
-.rayhai-action-send {
+[data-theme="light"] .rayhai-input:focus {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+.rayhai-input::placeholder {
+  color: var(--rayhai-text-tertiary);
+}
+
+/* Send button iOS 26 */
+.rayhai-send {
   width: 44px;
   height: 44px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #0a84ff, #5e5ce6);
+  background: linear-gradient(135deg, var(--rayhai-primary), var(--rayhai-secondary));
   border: none;
-  cursor: pointer;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #fff;
-  transition: all 0.2s var(--rayhai-ease);
+  cursor: pointer;
+  transition: all var(--rayhai-timing-fast) var(--rayhai-ease);
   flex-shrink: 0;
-  box-shadow: 0 2px 8px var(--rayhai-glow);
+  color: white;
+  font-size: 20px;
+  box-shadow: 
+    0 4px 16px rgba(10, 132, 255, 0.35),
+    0 0 0 0.5px rgba(255, 255, 255, 0.15) inset;
 }
 
-.rayhai-action-send:hover {
+.rayhai-send:hover:not(:disabled) {
   transform: scale(1.08);
-  box-shadow: 0 4px 16px var(--rayhai-glow);
+  box-shadow: 
+    0 6px 20px rgba(10, 132, 255, 0.45),
+    0 0 0 0.5px rgba(255, 255, 255, 0.2) inset;
 }
 
-.rayhai-action-send:active {
-  transform: scale(0.95);
+.rayhai-send:active:not(:disabled) {
+  transform: scale(0.96);
+  transition-duration: 0.1s;
 }
 
-/* POWERED */
+.rayhai-send:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Powered by */
 .rayhai-powered {
   text-align: center;
-  padding: 10px;
-  font-size: 11px;
-  color: var(--rayhai-text-secondary);
-  border-top: 1px solid var(--rayhai-border);
-  background: var(--rayhai-surface);
+  font-size: 12px;
+  color: var(--rayhai-text-tertiary);
+  margin-top: 10px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
 }
 
-/* RESPONSIVE */
+/* ============================================
+   RESPONSIVE - iOS 26 Adaptations
+============================================ */
+
 @media (max-width: 768px) {
-  #rayhai-root {
-    bottom: 16px;
-    right: 16px;
+  .rayhai-bubble {
+    width: 60px;
+    height: 60px;
+    bottom: 24px;
+    right: 24px;
   }
 
-  .rayhai-bubble {
-    width: 52px;
-    height: 52px;
+  .rayhai-bubble-icon {
+    font-size: 28px;
   }
 
   .rayhai-panel {
-    width: calc(100vw - 32px);
-    height: calc(100vh - 120px);
-    bottom: 76px;
-    right: 16px;
+    bottom: 98px;
+    right: 24px;
+    width: calc(100vw - 48px);
+    height: calc(100vh - 130px);
+    max-height: calc(100vh - 130px);
+  }
+
+  .rayhai-header {
+    padding: 16px 18px;
+  }
+
+  .rayhai-body {
+    padding: 20px 18px;
+  }
+
+  .rayhai-footer {
+    padding: 14px 18px 18px;
+  }
+
+  .rayhai-message-content {
+    max-width: 82%;
+  }
+
+  .rayhai-welcome {
+    padding: 36px 16px;
+  }
+
+  .rayhai-welcome-icon {
+    font-size: 64px;
+  }
+
+  .rayhai-welcome h2 {
+    font-size: 24px;
   }
 }
 
-/* ACCESSIBILITY */
-.rayhai-bubble:focus-visible,
-.rayhai-close:focus-visible,
-.rayhai-action-send:focus-visible,
-.rayhai-input:focus-visible,
-.suggestion-chip:focus-visible {
-  outline: 2px solid var(--rayhai-accent);
-  outline-offset: 2px;
+/* Mobile full screen iOS 26 */
+@media (max-width: 480px) {
+  .rayhai-panel {
+    bottom: 0;
+    right: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    max-width: 100vw;
+    max-height: 100vh;
+    border-radius: 0;
+    border: none;
+  }
+
+  .rayhai-header {
+    padding: 14px 16px;
+    padding-top: max(14px, env(safe-area-inset-top));
+  }
+
+  .rayhai-body {
+    padding: 18px 16px;
+  }
+
+  .rayhai-footer {
+    padding: 12px 16px;
+    padding-bottom: max(16px, env(safe-area-inset-bottom));
+  }
+
+  .rayhai-welcome {
+    padding: 32px 16px;
+  }
 }
 
-/* REDUCED MOTION */
+/* Landscape mode */
+@media (max-height: 600px) and (orientation: landscape) {
+  .rayhai-panel {
+    height: 100vh;
+    max-height: 100vh;
+  }
+
+  .rayhai-body {
+    padding: 16px;
+  }
+
+  .rayhai-welcome {
+    padding: 24px 16px;
+    gap: 16px;
+  }
+
+  .rayhai-welcome-icon {
+    font-size: 52px;
+  }
+
+  .rayhai-welcome h2 {
+    font-size: 22px;
+  }
+
+  .rayhai-welcome p {
+    font-size: 14px;
+  }
+}
+
+/* ============================================
+   ANIMATIONS & TRANSITIONS
+============================================ */
+
+/* Smooth transitions */
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Reduce motion */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -478,5 +870,27 @@
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .rayhai-bubble-icon,
+  .rayhai-welcome-icon {
+    animation: none !important;
+  }
+}
+
+/* ============================================
+   DARK MODE ENHANCEMENTS
+============================================ */
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  [data-theme="light"] {
+    color-scheme: light;
   }
 }

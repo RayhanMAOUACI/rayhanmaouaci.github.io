@@ -1,608 +1,397 @@
-/* ============================================================
-   RayhAI v6 - Apple Premium Experience
-   iOS/macOS Style Assistant with Advanced Features
-   ============================================================ */
+/* ============================================
+   RAYHAI - INTERFACE UI
+   Version optimisée - Production Ready
+============================================ */
 
-(function () {
-  "use strict";
+class RayhAI {
+  constructor() {
+    this.isOpen = false;
+    this.messages = [];
+    this.isTyping = false;
+    this.engineReady = false;
+    this.init();
+  }
 
-  // ========== UTILITIES ==========
-  const $ = (sel, ctx = document) => ctx.querySelector(sel);
-  const $$ = (sel, ctx = document) => Array.from(ctx.querySelectorAll(sel));
-  const clamp = (v, a, b) => Math.max(a, Math.min(v, b));
-  const nowTime = () => new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-  const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+  async init() {
+    await this.waitForEngine();
+    this.createUI();
+    this.attachEvents();
+  }
 
-  // ========== CONFIGURATION ==========
-  const CONFIG = {
-    bubbleSize: 64,
-    bubbleMargin: 24,
-    snapMargin: 24,
-    typingSpeed: 30,
-    maxTypingSpeed: 15,
-    suggestionDebounce: 2000,
-    idleTimeout: 15000,
-    maxMessageLength: 1000
-  };
-
-  // ========== STATE ==========
-  const STATE = {
-    isTyping: false,
-    currentStream: null,
-    lastUserMessage: null,
-    sessionHistory: [],
-    bubblePosition: null
-  };
-
-  // ========== MESSAGE RENDERING ==========
-
-  async function appendAssistantMessage(text, streaming = true) {
-    const body = $(".rayhai-body");
-    if (!body) return;
-
-    // Create message container
-    const wrapper = document.createElement("div");
-    wrapper.className = "rayhai-msg assistant";
-    
-    const bubble = document.createElement("div");
-    bubble.className = "msg-bubble";
-    
-    const time = document.createElement("div");
-    time.className = "msg-time";
-    time.textContent = nowTime();
-
-    wrapper.appendChild(bubble);
-    wrapper.appendChild(time);
-    body.appendChild(wrapper);
-
-    // Streaming effect with Apple-style smoothness
-    if (streaming && text.length > 30) {
-      STATE.isTyping = true;
-      let displayed = "";
-      const words = text.split(" ");
-      const speed = clamp(CONFIG.typingSpeed - (text.length / 100), CONFIG.maxTypingSpeed, CONFIG.typingSpeed);
-
-      for (let i = 0; i < words.length; i++) {
-        if (!STATE.isTyping) break;
-        displayed += (i > 0 ? " " : "") + words[i];
-        bubble.textContent = displayed;
-        body.scrollTop = body.scrollHeight;
-        await sleep(speed);
-      }
-      bubble.textContent = text;
-      STATE.isTyping = false;
-    } else {
-      bubble.textContent = text;
+  async waitForEngine() {
+    let attempts = 0;
+    while (!window.RayhaiEngine && attempts < 50) {
+      await new Promise(resolve => setTimeout(resolve, 100));
+      attempts++;
     }
-
-    // Smooth scroll to bottom
-    body.scrollTo({
-      top: body.scrollHeight,
-      behavior: 'smooth'
-    });
-    
-    return wrapper;
+    this.engineReady = !!window.RayhaiEngine;
   }
 
-  function appendUserMessage(text) {
-    const body = $(".rayhai-body");
-    if (!body) return;
-
-    const wrapper = document.createElement("div");
-    wrapper.className = "rayhai-msg user";
-    
-    const bubble = document.createElement("div");
-    bubble.className = "msg-bubble";
-    bubble.textContent = text;
-    
-    const time = document.createElement("div");
-    time.className = "msg-time";
-    time.textContent = nowTime();
-
-    wrapper.appendChild(bubble);
-    wrapper.appendChild(time);
-    body.appendChild(wrapper);
-    
-    body.scrollTo({
-      top: body.scrollHeight,
-      behavior: 'smooth'
-    });
-
-    STATE.sessionHistory.push({ role: "user", text, time: Date.now() });
-    return wrapper;
-  }
-
-  function showTypingIndicator() {
-    const body = $(".rayhai-body");
-    if (!body || $(".rayhai-typing", body)) return;
-
-    const typing = document.createElement("div");
-    typing.className = "rayhai-typing";
-    typing.innerHTML = '<div class="dot"></div><div class="dot"></div><div class="dot"></div>';
-    body.appendChild(typing);
-    body.scrollTop = body.scrollHeight;
-    return typing;
-  }
-
-  function hideTypingIndicator() {
-    const typing = $(".rayhai-typing");
-    if (typing) typing.remove();
-  }
-
-  // ========== UI INJECTION ==========
-
-  function ensureUI() {
-    if ($("#rayhai-root")) return $("#rayhai-root");
-
-    const root = document.createElement("div");
-    root.id = "rayhai-root";
-    root.innerHTML = `
-      <div class="rayhai-bubble" role="button" tabindex="0" aria-label="Ouvrir RayhAI">
-        <div class="bubble-orb"></div>
-        <span class="rayhai-bubble-icon">✨</span>
+  createUI() {
+    const html = `
+      <div class="rayhai-bubble" id="rayhai-bubble" role="button" aria-label="Ouvrir l'assistant RayhAI" aria-expanded="false" tabindex="0">
+        <div class="rayhai-bubble-icon" aria-hidden="true">🤖</div>
       </div>
 
-      <div class="rayhai-panel" role="dialog" aria-label="RayhAI Assistant" aria-hidden="true">
+      <div class="rayhai-panel" id="rayhai-panel" role="dialog" aria-labelledby="rayhai-title" aria-modal="true" aria-hidden="true" style="display: none;">
         <div class="rayhai-header">
-          <div>
-            <div class="rayhai-title">RayhAI</div>
-            <div class="rayhai-sub">Assistant Personnel</div>
+          <div class="rayhai-header-left">
+            <div class="rayhai-avatar" aria-hidden="true">🤖</div>
+            <div class="rayhai-info">
+              <h3 id="rayhai-title">RayhAI</h3>
+              <div class="rayhai-status">
+                <span class="rayhai-status-dot" aria-hidden="true"></span>
+                <span>Assistant Personnel</span>
+              </div>
+            </div>
           </div>
-          <button class="rayhai-close" aria-label="Fermer">✕</button>
-        </div>
-
-        <div class="rayhai-suggestions"></div>
-
-        <div class="rayhai-body" role="log" aria-live="polite" aria-atomic="false"></div>
-
-        <div class="rayhai-footer">
-          <textarea 
-            class="rayhai-input" 
-            placeholder="Écris un message..." 
-            rows="1"
-            maxlength="${CONFIG.maxMessageLength}"
-            aria-label="Zone de saisie"></textarea>
-          <button class="rayhai-action-send" aria-label="Envoyer">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-              <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <button class="rayhai-close" id="rayhai-close" aria-label="Fermer l'assistant" type="button">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" focusable="false">
+              <path d="M18 6L6 18M6 6l12 12"/>
             </svg>
           </button>
         </div>
 
-        <div class="rayhai-powered">Propulsé par RayhAI Engine v6</div>
+        <div class="rayhai-body" id="rayhai-body" role="log" aria-live="polite" aria-atomic="false">
+          <div class="rayhai-welcome">
+            <div class="rayhai-welcome-icon" aria-hidden="true">👋</div>
+            <div>
+              <h2>Bienvenue !</h2>
+              <p>Je suis Rayhan en version IA. Pose-moi des questions sur mes projets, compétences ou parcours !</p>
+            </div>
+            <div class="rayhai-suggestions">
+              <button class="rayhai-suggestion" data-text="Qui es-tu ?" type="button">Qui es-tu ?</button>
+              <button class="rayhai-suggestion" data-text="Tes projets ?" type="button">Tes projets ?</button>
+              <button class="rayhai-suggestion" data-text="Tes compétences ?" type="button">Tes compétences ?</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="rayhai-footer">
+          <div class="rayhai-input-wrapper">
+            <textarea 
+              class="rayhai-input" 
+              id="rayhai-input" 
+              placeholder="Écris un message..."
+              rows="1"
+              aria-label="Champ de saisie du message"
+            ></textarea>
+            <button class="rayhai-send" id="rayhai-send" aria-label="Envoyer le message" type="button">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" focusable="false">
+                <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
+              </svg>
+            </button>
+          </div>
+          <div class="rayhai-powered" aria-hidden="true">Propulsé par RayhAI Engine</div>
+        </div>
       </div>
     `;
-    document.body.appendChild(root);
-    return root;
+
+    const container = document.createElement('div');
+    container.innerHTML = html;
+    document.body.appendChild(container);
   }
 
-  // ========== PANEL INITIALIZATION ==========
+  attachEvents() {
+    this.bubble = document.getElementById('rayhai-bubble');
+    this.panel = document.getElementById('rayhai-panel');
+    this.closeBtn = document.getElementById('rayhai-close');
+    this.input = document.getElementById('rayhai-input');
+    this.sendBtn = document.getElementById('rayhai-send');
+    this.body = document.getElementById('rayhai-body');
 
-  function initPanel(root) {
-    const panel = $(".rayhai-panel", root);
-    const body = $(".rayhai-body", root);
-    const input = $(".rayhai-input", root);
-    const sendBtn = $(".rayhai-action-send", root);
-    const closeBtn = $(".rayhai-close", root);
-    const suggestionsBar = $(".rayhai-suggestions", root);
+    this.bubble.addEventListener('click', () => this.toggle());
+    this.bubble.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        this.toggle();
+      }
+    });
 
-    if (!panel) return {};
+    this.closeBtn.addEventListener('click', () => this.close());
+    this.sendBtn.addEventListener('click', () => this.send());
+    
+    this.input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        this.send();
+      }
+    });
 
-    // Welcome message (session only)
-    if (!sessionStorage.getItem("RAYHAI_WELCOMED")) {
+    this.input.addEventListener('input', () => {
+      this.input.style.height = 'auto';
+      this.input.style.height = Math.min(this.input.scrollHeight, 120) + 'px';
+    });
+
+    document.addEventListener('click', (e) => {
+      if (e.target.classList.contains('rayhai-suggestion')) {
+        const text = e.target.getAttribute('data-text');
+        this.input.value = text;
+        this.send();
+      }
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && this.isOpen) {
+        this.close();
+      }
+    });
+
+    document.addEventListener('click', (e) => {
+      if (this.isOpen && 
+          !this.panel.contains(e.target) && 
+          !this.bubble.contains(e.target)) {
+        this.close();
+      }
+    });
+  }
+
+  toggle() {
+    this.isOpen ? this.close() : this.open();
+  }
+
+  open() {
+    this.isOpen = true;
+    this.panel.style.display = 'flex';
+    this.panel.offsetHeight;
+    this.panel.classList.add('open');
+    this.bubble.classList.add('active');
+    this.bubble.setAttribute('aria-expanded', 'true');
+    this.panel.removeAttribute('aria-hidden');
+    
+    setTimeout(() => this.input.focus(), 100);
+    
+    if ('vibrate' in navigator) {
+      navigator.vibrate(50);
+    }
+  }
+
+close() {
+  this.isOpen = false;
+
+  // 🔧 Retirer le focus AVANT aria-hidden
+  if (this.panel.contains(document.activeElement)) {
+    document.activeElement.blur();
+  }
+
+  this.panel.classList.remove('open');
+  this.bubble.classList.remove('active');
+  this.bubble.setAttribute('aria-expanded', 'false');
+  this.panel.setAttribute('aria-hidden', 'true');
+
+  setTimeout(() => {
+    this.panel.style.display = 'none';
+  }, 400);
+}
+
+
+  // Filtre pour questions trop simples
+  isSimpleQuestion(text) {
+    const lowerText = text.toLowerCase().trim();
+    
+    // Liste de questions trop simples à bloquer
+    const simplePatterns = [
+      /^(ca|ça) va\??$/,
+      /^comment (tu )?vas\??$/,
+      /^(tu vas|vous allez) bien\??$/,
+      /^quoi de neuf\??$/,
+      /^salut\??$/,
+      /^hey\??$/,
+      /^hello\??$/,
+      /^bonjour\??$/,
+      /^coucou\??$/,
+      /^yo\??$/,
+      /^ok\??$/,
+      /^d'accord\??$/,
+      /^oui\??$/,
+      /^non\??$/,
+      /^merci\??$/,
+      /^lol$/,
+      /^mdr$/,
+      /^ptdr$/,
+      /^cool$/,
+      /^nice$/,
+      /^super$/
+    ];
+
+    // Vérifier si c'est trop court (moins de 3 caractères)
+    if (lowerText.length < 3) return true;
+
+    // Vérifier les patterns
+    return simplePatterns.some(pattern => pattern.test(lowerText));
+  }
+
+  async send() {
+    if (this.isTyping) return;
+
+    const text = this.input.value.trim();
+    if (!text) return;
+
+    // Bloquer les questions trop simples
+    if (this.isSimpleQuestion(text)) {
+      this.input.value = '';
+      this.input.style.height = 'auto';
+      
+      // Message d'encouragement à poser une vraie question
+      const welcome = this.body.querySelector('.rayhai-welcome');
+      if (welcome) {
+        welcome.style.opacity = '0';
+        setTimeout(() => welcome.remove(), 300);
+      }
+      
+      this.addMessage('user', text);
+      
       setTimeout(() => {
-        const hour = new Date().getHours();
-        let greeting = "Salut !";
-        if (hour < 12) greeting = "Bonjour !";
-        else if (hour >= 18) greeting = "Bonsoir !";
-        
-        appendAssistantMessage(`${greeting} Je suis Rayhan. Pose-moi des questions sur mon parcours, mes compétences, mes projets... ou demande-moi de l'aide ! 😊`, false);
+        const responses = [
+          "Pose-moi plutôt une vraie question ! Par exemple : mes projets, mes compétences, mon parcours... 😊",
+          "J'aimerais bien discuter, mais je suis là pour t'aider sur mon portfolio ! Demande-moi quelque chose de concret 💼",
+          "Hey ! Je préfère répondre à des questions sur mes projets, compétences ou expériences. Vas-y ! 🚀"
+        ];
+        const response = responses[Math.floor(Math.random() * responses.length)];
+        this.addMessage('assistant', response);
       }, 800);
-      sessionStorage.setItem("RAYHAI_WELCOMED", "1");
+      
+      return;
     }
 
-// Panel API
-window.RayhaiPanel = {
-  open: () => {
-    panel.classList.add("open");
-    panel.removeAttribute("inert");   // ← ouverture propre
-    input?.focus();
-    
-    // Haptic feedback (if supported)
-    if (navigator.vibrate) {
-      navigator.vibrate(10);
+    this.input.disabled = true;
+    this.sendBtn.disabled = true;
+    this.input.value = '';
+    this.input.style.height = 'auto';
+
+    const welcome = this.body.querySelector('.rayhai-welcome');
+    if (welcome) {
+      welcome.style.opacity = '0';
+      welcome.style.transform = 'translateY(-20px)';
+      setTimeout(() => welcome.remove(), 300);
     }
-  },
-  close: () => {
-    panel.classList.remove("open");
-    panel.setAttribute("inert", "");  // ← évite l’erreur ARIA
-  },
-  isOpen: () => panel.classList.contains("open"),
-  clear: () => {
-    body.innerHTML = "";
-    STATE.sessionHistory = [];
-    sessionStorage.removeItem("RAYHAI_WELCOMED");
+
+    this.addMessage('user', text);
+    this.showTyping();
+    this.isTyping = true;
+
+    try {
+      let response;
+
+      if (this.engineReady && window.RayhaiEngine) {
+        response = await window.RayhaiEngine.ask(text);
+      } else {
+        await this.delay(1000);
+        response = "Le moteur IA n'est pas encore chargé. Réessaie dans quelques secondes.";
+      }
+
+      this.hideTyping();
+      this.addMessage('assistant', response);
+      
+    } catch (error) {
+      this.hideTyping();
+      this.addMessage('assistant', "Oups, j'ai eu un bug. Réessaye ? 😅");
+    } finally {
+      this.isTyping = false;
+      this.input.disabled = false;
+      this.sendBtn.disabled = false;
+      this.input.focus();
+    }
   }
-};
 
-// Event listeners
-closeBtn?.addEventListener("click", () => {
-  window.RayhaiPanel.close();
-  if (navigator.vibrate && RayhaiPanel._userInteracted) {
-  navigator.vibrate(10);
+  addMessage(role, content) {
+    const time = new Date().toLocaleTimeString('fr-FR', { 
+      hour: '2-digit', 
+      minute: '2-digit' 
+    });
+
+    const formattedContent = this.formatMessage(content);
+
+    const messageHTML = `
+      <div class="rayhai-message ${role}">
+        <div class="rayhai-message-avatar" aria-hidden="true">${role === 'user' ? '👤' : '🤖'}</div>
+        <div>
+          <div class="rayhai-message-content">${formattedContent}</div>
+          <div class="rayhai-message-time" aria-hidden="true">${time}</div>
+        </div>
+      </div>
+    `;
+
+    this.body.insertAdjacentHTML('beforeend', messageHTML);
+    this.scrollToBottom();
+    this.messages.push({ role, content, time });
+  }
+
+  formatMessage(text) {
+    const escaped = text
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+
+    return escaped
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.*?)\*/g, '<em>$1</em>')
+      .replace(/\n/g, '<br>')
+      .replace(/• /g, '• ');
+  }
+
+  showTyping() {
+    const typingHTML = `
+      <div class="rayhai-message assistant">
+        <div class="rayhai-message-avatar" aria-hidden="true">🤖</div>
+        <div class="rayhai-typing" id="rayhai-typing" aria-label="Rayhan est en train d'écrire">
+          <span aria-hidden="true"></span>
+          <span aria-hidden="true"></span>
+          <span aria-hidden="true"></span>
+        </div>
+      </div>
+    `;
+    this.body.insertAdjacentHTML('beforeend', typingHTML);
+    this.scrollToBottom();
+  }
+
+  hideTyping() {
+    const typing = this.body.querySelector('.rayhai-message:has(#rayhai-typing)');
+    if (typing) typing.remove();
+  }
+
+  scrollToBottom() {
+    this.body.scrollTo({
+      top: this.body.scrollHeight,
+      behavior: 'smooth'
+    });
+  }
+
+  delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  resetConversation() {
+    if (window.RayhaiEngine) {
+      window.RayhaiEngine.resetSession();
+    }
+    this.messages = [];
+    this.body.innerHTML = '';
+    this.createWelcomeMessage();
+  }
+
+  createWelcomeMessage() {
+    const welcomeHTML = `
+      <div class="rayhai-welcome">
+        <div class="rayhai-welcome-icon" aria-hidden="true">👋</div>
+        <div>
+          <h2>Bienvenue !</h2>
+          <p>Je suis Rayhan en version IA. Pose-moi des questions sur mes projets, compétences ou parcours !</p>
+        </div>
+        <div class="rayhai-suggestions">
+          <button class="rayhai-suggestion" data-text="Qui es-tu ?" type="button">Qui es-tu ?</button>
+          <button class="rayhai-suggestion" data-text="Tes projets ?" type="button">Tes projets ?</button>
+          <button class="rayhai-suggestion" data-text="Tes compétences ?" type="button">Tes compétences ?</button>
+        </div>
+      </div>
+    `;
+    this.body.insertAdjacentHTML('beforeend', welcomeHTML);
+  }
 }
 
+// Initialisation silencieuse
+document.addEventListener('DOMContentLoaded', async () => {
+  window.rayhAI = new RayhAI();
 });
-
-// Close on outside click (with delay to prevent immediate close)
-setTimeout(() => {
-  document.addEventListener("click", (e) => {
-    if (window.RayhaiPanel.isOpen() && 
-        !root.contains(e.target)) {
-      window.RayhaiPanel.close();
-    }
-  });
-}, 100);
-
-// Close on ESC
-document.addEventListener("keydown", (e) => {
-  if (e.key === "Escape" && window.RayhaiPanel.isOpen()) {
-    window.RayhaiPanel.close();
-  }
-});
-
-return { panel, body, input, sendBtn, suggestionsBar };
-
-  }
-
-  // ========== BUBBLE WITH SMART POSITIONING ==========
-
-  function initBubble(root) {
-    const bubble = $(".rayhai-bubble", root);
-    if (!bubble) return null;
-
-    // Get stored position or default
-    let pos = STATE.bubblePosition || {
-      left: window.innerWidth - CONFIG.bubbleSize - CONFIG.bubbleMargin,
-      top: window.innerHeight - CONFIG.bubbleSize - CONFIG.bubbleMargin
-    };
-
-    // Try to restore from session
-    try {
-      const saved = sessionStorage.getItem("RAYHAI_BUBBLE_POS");
-      if (saved) {
-        const p = JSON.parse(saved);
-        if (p.left !== undefined && p.top !== undefined) pos = p;
-      }
-    } catch (e) {
-      console.warn("Could not restore bubble position:", e);
-    }
-
-    function setPos(left, top) {
-      const maxX = window.innerWidth - CONFIG.bubbleSize - 10;
-      const maxY = window.innerHeight - CONFIG.bubbleSize - 10;
-      pos.left = clamp(left, 10, maxX);
-      pos.top = clamp(top, 10, maxY);
-      
-      bubble.style.position = "fixed";
-      bubble.style.left = pos.left + "px";
-      bubble.style.top = pos.top + "px";
-      bubble.style.right = "auto";
-      bubble.style.bottom = "auto";
-
-      STATE.bubblePosition = pos;
-
-      try {
-        sessionStorage.setItem("RAYHAI_BUBBLE_POS", JSON.stringify(pos));
-      } catch (e) {
-        console.warn("Could not save bubble position:", e);
-      }
-    }
-
-    setPos(pos.left, pos.top);
-
-    // Drag behavior with smooth Apple-style interaction
-    let dragging = false, startX = 0, startY = 0, startLeft = 0, startTop = 0;
-
-    function onDragStart(cx, cy) {
-      dragging = true;
-      bubble.classList.add("dragging");
-      startX = cx;
-      startY = cy;
-      startLeft = pos.left;
-      startTop = pos.top;
-      bubble.style.transition = "none";
-      
-      if (navigator.vibrate && RayhaiPanel._userInteracted) {
-  navigator.vibrate(10);
-}
-
-RayhaiPanel._userInteracted = true;
-
-    }
-
-    function onDragMove(cx, cy) {
-      if (!dragging) return;
-      const dx = cx - startX;
-      const dy = cy - startY;
-      setPos(startLeft + dx, startTop + dy);
-    }
-
-    function onDragEnd() {
-      if (!dragging) return;
-      dragging = false;
-      bubble.classList.remove("dragging");
-      bubble.style.transition = "";
-      snapToEdge();
-      
-      if (navigator.vibrate) navigator.vibrate(15);
-    }
-
-    function snapToEdge() {
-      const centerX = pos.left + CONFIG.bubbleSize / 2;
-      const toLeft = centerX < window.innerWidth / 2;
-      const targetX = toLeft 
-        ? CONFIG.snapMargin 
-        : (window.innerWidth - CONFIG.bubbleSize - CONFIG.snapMargin);
-      
-      // Smooth snap animation
-      bubble.style.transition = "all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)";
-      setPos(targetX, pos.top);
-    }
-
-    // Mouse events
-    bubble.addEventListener("mousedown", (e) => {
-      if (e.button !== 0) return;
-      e.preventDefault();
-      onDragStart(e.clientX, e.clientY);
-    });
-
-    document.addEventListener("mousemove", (e) => onDragMove(e.clientX, e.clientY));
-    document.addEventListener("mouseup", onDragEnd);
-
-    // Touch events
-    bubble.addEventListener("touchstart", (e) => {
-      const t = e.touches[0];
-      if (!t) return;
-      onDragStart(t.clientX, t.clientY);
-    }, { passive: true });
-
-    document.addEventListener("touchmove", (e) => {
-      const t = e.touches[0];
-      if (!t) return;
-      onDragMove(t.clientX, t.clientY);
-    }, { passive: true });
-
-    document.addEventListener("touchend", onDragEnd);
-
-    // Click to toggle (only if not dragging)
-    let clickStartTime = 0;
-    bubble.addEventListener("mousedown", () => { clickStartTime = Date.now(); });
-    bubble.addEventListener("touchstart", () => { clickStartTime = Date.now(); });
-    
-    bubble.addEventListener("click", (e) => {
-      const clickDuration = Date.now() - clickStartTime;
-      if (clickDuration < 200) { // Fast click = toggle
-        e.preventDefault();
-        if (window.RayhaiPanel.isOpen()) {
-          window.RayhaiPanel.close();
-        } else {
-          window.RayhaiPanel.open();
-        }
-      }
-    });
-
-    // Keyboard accessibility
-    bubble.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" || e.key === " ") {
-        e.preventDefault();
-        if (window.RayhaiPanel.isOpen()) {
-          window.RayhaiPanel.close();
-        } else {
-          window.RayhaiPanel.open();
-        }
-      }
-    });
-
-    // Window resize
-    window.addEventListener("resize", () => {
-      setPos(pos.left, pos.top);
-      snapToEdge();
-    });
-
-    // Public API
-    window.RayhaiBubble = {
-      setPos,
-      getPos: () => ({ ...pos }),
-      snap: snapToEdge,
-      hide: () => { bubble.style.display = "none"; },
-      show: () => { bubble.style.display = "flex"; }
-    };
-
-    return window.RayhaiBubble;
-  }
-
-  // ========== MESSAGING LOGIC ==========
-
-  function initMessaging(refs) {
-    const { input, sendBtn } = refs;
-    if (!input || !sendBtn) return;
-
-    async function sendMessage() {
-      const text = input.value.trim();
-      if (!text || STATE.isTyping) return;
-
-      // Haptic feedback
-      if (navigator.vibrate) navigator.vibrate(10);
-
-      // Clear input
-      input.value = "";
-      input.style.height = "auto";
-
-      // Append user message
-      appendUserMessage(text);
-      STATE.lastUserMessage = text;
-
-      // Show typing indicator
-      showTypingIndicator();
-
-      // Get response from engine
-      let reply = "";
-      try {
-        if (window.RayhaiEngine && typeof window.RayhaiEngine.ask === "function") {
-          reply = await window.RayhaiEngine.ask(text);
-        } else {
-          reply = "Je suis en train de me réveiller... Réessaye dans un instant. ⚡";
-        }
-      } catch (err) {
-        console.error("RayhAI error:", err);
-        reply = "Oups, j'ai eu un petit bug. Peux-tu réessayer ? 😅";
-      }
-
-      // Hide typing and show response
-      hideTypingIndicator();
-      await appendAssistantMessage(reply || "Hmm, je n'ai pas de réponse pour le moment.");
-      
-      STATE.sessionHistory.push({ role: "assistant", text: reply, time: Date.now() });
-
-      // Haptic feedback
-      if (navigator.vibrate) navigator.vibrate([10, 50, 10]);
-    }
-
-    // Send on Enter (Shift+Enter for new line)
-    input.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" && !e.shiftKey) {
-        e.preventDefault();
-        sendMessage();
-      }
-    });
-
-    // Auto-resize textarea
-    input.addEventListener("input", () => {
-      input.style.height = "auto";
-      input.style.height = Math.min(120, input.scrollHeight) + "px";
-    });
-
-    // Send button
-    sendBtn.addEventListener("click", sendMessage);
-  }
-
-  // ========== SMART SUGGESTIONS ==========
-
-  function initSuggestions(refs) {
-    const { suggestionsBar } = refs;
-    if (!suggestionsBar) return;
-
-    let debounceTimer = null;
-
-    async function generateSuggestions() {
-      // Context-aware suggestions based on YOUR portfolio content
-      const suggestions = [
-        "Qui es-tu ?",
-        "Tes projets ?",
-        "Tes compétences ?",
-        "Comment te contacter ?"
-      ];
-
-      renderSuggestions(suggestions);
-    }
-
-    function renderSuggestions(items) {
-      if (!items || items.length === 0) {
-        suggestionsBar.style.display = "none";
-        return;
-      }
-
-      suggestionsBar.innerHTML = "";
-      items.slice(0, 4).forEach(text => {
-        const chip = document.createElement("button");
-        chip.className = "suggestion-chip";
-        chip.textContent = text;
-        chip.addEventListener("click", async () => {
-          window.RayhaiPanel.open();
-          appendUserMessage(text);
-          showTypingIndicator();
-          
-          try {
-            const reply = window.RayhaiEngine 
-              ? await window.RayhaiEngine.ask(text)
-              : "Désolé, je ne suis pas encore connecté à mon moteur.";
-            hideTypingIndicator();
-            await appendAssistantMessage(reply);
-          } catch (e) {
-            hideTypingIndicator();
-            appendAssistantMessage("Erreur lors de la réponse. Réessaye plus tard.");
-          }
-        });
-        suggestionsBar.appendChild(chip);
-      });
-
-      suggestionsBar.style.display = "flex";
-    }
-
-    // Generate on load (debounced)
-    debounceTimer = setTimeout(generateSuggestions, CONFIG.suggestionDebounce);
-
-    window.RayhaiSuggest = {
-      refresh: generateSuggestions,
-      clear: () => {
-        suggestionsBar.innerHTML = "";
-        suggestionsBar.style.display = "none";
-      }
-    };
-  }
-
-  // ========== IDLE DETECTION ==========
-
-  function initIdleWatcher() {
-    let lastActivity = Date.now();
-    let idleShown = false;
-
-    function markActivity() {
-      lastActivity = Date.now();
-      idleShown = false;
-    }
-
-    ["mousemove", "keydown", "touchstart", "scroll"].forEach(evt => {
-      document.addEventListener(evt, markActivity, { passive: true });
-    });
-
-    setInterval(() => {
-      const idle = Date.now() - lastActivity > CONFIG.idleTimeout;
-      if (idle && !idleShown && !window.RayhaiPanel?.isOpen()) {
-        // Optional: Show subtle idle hint
-        idleShown = true;
-      }
-    }, 5000);
-  }
-
-  // ========== BOOT ==========
-
-  function boot() {
-    try {
-      const root = ensureUI();
-      if (!root) {
-        console.error("❌ Could not create RayhAI root");
-        return;
-      }
-
-      const refs = initPanel(root);
-      initBubble(root);
-      initMessaging(refs);
-      initSuggestions(refs);
-      initIdleWatcher();
-
-      console.log("✨ RayhAI v6");
-      document.dispatchEvent(new Event("RayhAI_READY"));
-    } catch (e) {
-      console.error("❌ RayhAI boot error:", e);
-    }
-  }
-
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", boot);
-  } else {
-    boot();
-  }
-
-})();

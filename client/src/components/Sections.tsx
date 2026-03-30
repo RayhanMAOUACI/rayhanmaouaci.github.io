@@ -1,3 +1,4 @@
+import React from 'react';
 import { Mail, Github, Linkedin, ExternalLink, Code, Briefcase, Lightbulb, Zap, Award, Target, Flame } from 'lucide-react';
 
 // Section Profil - Enrichie
@@ -423,6 +424,48 @@ export function MindsetSection() {
 
 // Section Contact
 export function ContactSection() {
+  const [formData, setFormData] = React.useState({ name: '', email: '', message: '' });
+  const [loading, setLoading] = React.useState(false);
+  const [submitted, setSubmitted] = React.useState(false);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      // Charger EmailJS dynamiquement
+      const script = document.createElement('script');
+      script.src = 'https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/index.min.js';
+      script.onload = async () => {
+        // @ts-ignore
+        window.emailjs.init('53Rv3ywF7wqL1UDru');
+        
+        // @ts-ignore
+        await window.emailjs.send('service_contact', 'template_contact', {
+          from_name: formData.name,
+          from_email: formData.email,
+          message: formData.message,
+          to_email: 'rayhan.maouaci@gmail.com',
+        });
+
+        setSubmitted(true);
+        setFormData({ name: '', email: '', message: '' });
+        setTimeout(() => setSubmitted(false), 5000);
+      };
+      document.head.appendChild(script);
+    } catch (error) {
+      console.error('Erreur d\'envoi:', error);
+      alert('Erreur lors de l\'envoi. Veuillez réessayer.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <section className="py-20 bg-background section-enter">
       <div className="container max-w-2xl">
@@ -435,13 +478,23 @@ export function ContactSection() {
             Envoyez-moi un message
           </h3>
 
-          <form className="space-y-6">
+          {submitted && (
+            <div className="mb-6 p-4 bg-green-500/20 border border-green-500 rounded-lg text-green-400 text-center">
+              ✅ Message envoyé avec succès ! Je vous répondrai bientôt.
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label className="block text-white mb-2 font-medium text-sm">
                 Nom
               </label>
               <input
                 type="text"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                required
                 className="w-full bg-input border border-slate-700 rounded-lg px-4 py-2 text-white placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="Votre nom"
               />
@@ -453,6 +506,10 @@ export function ContactSection() {
               </label>
               <input
                 type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                required
                 className="w-full bg-input border border-slate-700 rounded-lg px-4 py-2 text-white placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="votre@email.com"
               />
@@ -463,6 +520,10 @@ export function ContactSection() {
                 Message
               </label>
               <textarea
+                name="message"
+                value={formData.message}
+                onChange={handleChange}
+                required
                 className="w-full bg-input border border-slate-700 rounded-lg px-4 py-2 text-white placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none h-32"
                 placeholder="Votre message..."
               />
@@ -470,9 +531,10 @@ export function ContactSection() {
 
             <button
               type="submit"
-              className="btn-premium w-full py-3 rounded-lg"
+              disabled={loading}
+              className="btn-premium w-full py-3 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Envoyer
+              {loading ? 'Envoi en cours...' : 'Envoyer'}
             </button>
           </form>
         </div>
@@ -480,14 +542,14 @@ export function ContactSection() {
         {/* Liens de Contact */}
         <div className="flex justify-center gap-8">
           <a
-            href="mailto:rayhan@example.com"
+            href="mailto:rayhan.maouaci@gmail.com"
             className="flex items-center gap-2 text-blue-400 hover:text-blue-300 transition-colors"
             title="Email"
           >
             <Mail size={24} />
           </a>
           <a
-            href="https://github.com"
+            href="https://github.com/RayhanMAOUACI"
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-2 text-blue-400 hover:text-blue-300 transition-colors"
@@ -496,7 +558,7 @@ export function ContactSection() {
             <Github size={24} />
           </a>
           <a
-            href="https://linkedin.com"
+            href="https://www.linkedin.com/in/rayhanmaouaci/"
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-2 text-blue-400 hover:text-blue-300 transition-colors"

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ArrowRight } from 'lucide-react';
 
 interface WelcomeSplashProps {
@@ -7,6 +7,20 @@ interface WelcomeSplashProps {
 
 export default function WelcomeSplash({ onEnter }: WelcomeSplashProps) {
   const [isLoading, setIsLoading] = useState(false);
+  const [currentTime, setCurrentTime] = useState('');
+
+  useEffect(() => {
+    const updateTime = () => {
+      const now = new Date();
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      setCurrentTime(`${hours}:${minutes}`);
+    };
+    
+    updateTime();
+    const interval = setInterval(updateTime, 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   const handleEnter = () => {
     setIsLoading(true);
@@ -75,7 +89,7 @@ export default function WelcomeSplash({ onEnter }: WelcomeSplashProps) {
 
         {/* Footer */}
         <p className="text-gray-500 text-sm">
-          <span className="text-gray-400 font-mono">23:28</span> • Bienvenue sur mon portfolio
+          <span className="text-gray-400 font-mono">{currentTime || '--:--'}</span> • Bienvenue sur mon portfolio
         </p>
       </div>
     </div>

@@ -102,16 +102,46 @@ export default function RayhAI() {
     'pourquoi pas': 'Bonne question ! Mais tu peux être plus spécifique ?',
 
     // Contact et alternance
-    'contact': 'Tu peux me contacter via le formulaire sur le portfolio, par email ou sur LinkedIn. Je réponds vite et je suis toujours ouvert à discuter.',
-    'email': 'Tu peux m\'envoyer un email via le formulaire de contact sur le portfolio. Je vais te répondre rapidement !',
-    'linkedin': 'Ouais, je suis sur LinkedIn ! Tu peux me trouver en tant que Rayhan MAOUACI. Connecte-toi, ça serait cool !',
+    'contact': 'Tu peux me contacter via le formulaire sur le portfolio, par email à rayhan.maouaci@gmail.com ou sur LinkedIn. Je réponds vite et je suis toujours ouvert à discuter.',
+    'email': 'Tu peux m\'envoyer un email à rayhan.maouaci@gmail.com ou via le formulaire de contact sur le portfolio. Je vais te répondre rapidement !',
+    'linkedin': 'Ouais, je suis sur LinkedIn ! https://www.linkedin.com/in/rayhanmaouaci/ - Connecte-toi, ça serait cool !',
+    'github': 'Mon GitHub : https://github.com/RayhanMAOUACI - Tu peux voir mes projets et contributions là-bas !',
     'recruter': 'Ouais, je suis intéressé ! 😄 Si tu as une opportunité d\'alternance pour 2026, contacte-moi. Je suis sérieux dans mon engagement professionnel.',
+    'opportunite': 'Si tu as une opportunité d\'alternance ou un projet intéressant, je suis tout ouïe ! Contacte-moi via le formulaire ou directement sur LinkedIn.',
+
+    // Questions sur les compétences spécifiques
+    'docker': 'Docker, c\'est super utile pour containeriser les applications. Je l\'utilise pour isoler les environnements de développement et de production.',
+    'git': 'Git c\'est indispensable. Je l\'utilise pour versionner mon code et collaborer. C\'est une bonne pratique qu\'on devrait tous avoir.',
+    'sql': 'SQL c\'est la base pour gérer les données. Je maîtrise les requêtes basiques et les joins. C\'est fondamental pour tout développeur.',
+    'linux': 'Linux, c\'est mon OS préféré. Je suis à l\'aise avec la ligne de commande et les scripts shell. C\'est important pour un dev ou un sysadmin.',
+    'tailwind': 'Tailwind CSS c\'est dingue pour le styling. Plutôt que d\'écrire du CSS classique, on utilise des classes utilitaires. Mon portfolio est stylisé avec Tailwind.',
+    'electronique': 'L\'électronique, c\'est une partie de ma formation. J\'ai des notions de circuits, de composants et de sécurité électrique.',
+    'reseaux': 'Les réseaux, c\'est fascinant. J\'ai des notions en TCP/IP, DNS, DHCP et configuration de routeurs. C\'est utile pour comprendre l\'infrastructure.',
+
+    // Questions sur les projets détaillés
+    'portfolio comment': 'J\'ai construit mon portfolio avec React, Tailwind CSS et JavaScript. Design moderne avec animations fluides, dark mode, et un assistant IA intégré. C\'est responsive et optimisé pour tous les appareils.',
+    'rayhai comment': 'RayhAI fonctionne avec une base de connaissances en JavaScript. Quand tu poses une question, je cherche une correspondance et je réponds. C\'est simple mais efficace !',
+    'design': 'Le design de mon portfolio est moderne et épuré. Dark mode avec palette bleu/violet, animations fluides, et une bonne UX. J\'ai vraiment soigné les détails.',
+
+    // Questions sur l\'expérience
+    'experience': 'J\'ai 5 mois d\'expérience professionnelle à travers 3 stages. Chacun m\'a appris des choses différentes : support technique, déploiement infrastructure, et maintenance matérielle.',
+    'apprentissage': 'J\'apprends vite et j\'aime les défis. Chaque stage m\'a poussé à sortir de ma zone de confort et à développer de nouvelles compétences.',
+    'rigueur': 'La rigueur c\'est important pour moi. À la Préfecture, j\'ai vu comment l\'attention aux détails peut être critique. C\'est une leçon que j\'applique partout.',
+
+    // Questions sur l\'avenir
+    'apres bts': 'Après le BTS, je vise une école d\'ingénieur ou un master spécialisé en IA. Je veux vraiment approfondir mes connaissances en intelligence artificielle.',
+    'objectif': 'Mon objectif à court terme : réussir mon BTS et trouver une bonne alternance. À long terme : devenir un expert en IA et cybersécurité.',
+    'reve': 'Mon rêve ? Travailler sur des projets d\'IA qui ont un impact réel. Pas juste du code pour du code, mais quelque chose qui améliore les choses.',
+    'futur': 'Je vois mon futur dans la tech, clairement. Soit en tant que développeur senior, soit en tant qu\'expert en sécurité ou IA. On verra bien !',
 
     // Réponses générales
     'merci': 'De rien ! Y\'a autre chose que tu veux savoir ?',
     'cool': 'Ouais c\'est vrai ! T\'as d\'autres questions ?',
     'ok': 'Cool ! Autre chose ?',
     'yes': 'Ouais ! 😄 T\'as d\'autres questions ?',
+    'non': 'Pas de souci ! Si tu as d\'autres questions plus tard, je suis là.',
+    'peut etre': 'Haha, peut-être quoi ? 😄 Sois plus précis et je vais pouvoir t\'aider mieux !',
+    'peut-etre': 'Haha, peut-être quoi ? 😄 Sois plus précis et je vais pouvoir t\'aider mieux !',
   };
 
   const findAnswer = (question: string): string => {
